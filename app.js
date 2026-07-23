@@ -1,258 +1,246 @@
 /* =========================================================================
-   Apprendre l'arabe — moteur d'étude (SRS) + interface.
-   Tout l'état est sauvegardé dans localStorage : rien à installer côté
-   serveur. Elle rouvre l'app demain → tout est retenu.
+   Apprendre l'arabe — expérience d'apprentissage.
+   Une leçon = on APPREND (cartes) puis on VÉRIFIE (quiz).
+   Aucun streak, aucun délai. La progression (leçons faites, meilleur score)
+   est gardée dans localStorage. On peut refaire une leçon quand on veut.
    ========================================================================= */
 
 (function () {
   "use strict";
 
-  // ---- réglages pensés pour le TDAH : sessions courtes et finies --------
-  const NEW_PER_SESSION = 4;     // peu de nouveautés à la fois
-  const SESSION_MAX     = 10;    // une session a une fin visible
-  const BOX_DAYS = [0, 1, 3, 7, 16, 35]; // répétition espacée (Leitner)
-
   const app = document.getElementById("app");
-  const STORE_KEY = "arabe.progress.v1";
-  const DAY = 86400000;
+  const STORE_KEY = "arabe.progress.v2";
+  const LESSONS = window.LESSONS || [];
 
-  // ---- persistance -------------------------------------------------------
+  // ---- progression (simple, sans pression) ------------------------------
   function load() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
     catch (_) { return {}; }
   }
   function save(s) { localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+  let state = Object.assign({ lessons: {} }, load());
 
-  function freshState() {
-    return { cards: {}, streak: 0, lastDay: null, sessionsDone: 0 };
-  }
-  let state = Object.assign(freshState(), load());
+  function lessonProgress(id) { return state.lessons[id] || null; }
 
-  function todayIndex() { return Math.floor(Date.now() / DAY); }
-
-  function cardState(id) {
-    return state.cards[id] || { box: 0, due: 0, seen: 0, correct: 0 };
-  }
-
-  // toutes les cartes, à plat, avec leur deck
-  function allCards() {
-    const out = [];
-    (window.DECKS || []).forEach(function (d) {
-      d.cards.forEach(function (c) { out.push({ card: c, deck: d }); });
-    });
-    return out;
-  }
-
-  // combien de lettres "acquises" (box >= 3)
-  function learnedCount() {
-    let n = 0;
-    for (const id in state.cards) if (state.cards[id].box >= 3) n++;
-    return n;
-  }
-
-  // ---- construction de la session ---------------------------------------
-  function buildSession() {
-    const now = Date.now();
-    const due = [], fresh = [];
-    allCards().forEach(function (entry) {
-      const cs = cardState(entry.card.id);
-      if (cs.seen === 0) fresh.push(entry);
-      else if (cs.due <= now) due.push(entry);
-    });
-    // les révisions d'abord, puis un peu de nouveau
-    const session = due.slice(0, SESSION_MAX);
-    const room = Math.min(NEW_PER_SESSION, SESSION_MAX - session.length);
-    for (let i = 0; i < room && i < fresh.length; i++) session.push(fresh[i]);
-    return session;
-  }
-
-  function countsForHome() {
-    const now = Date.now();
-    let due = 0, fresh = 0;
-    allCards().forEach(function (entry) {
-      const cs = cardState(entry.card.id);
-      if (cs.seen === 0) fresh++;
-      else if (cs.due <= now) due++;
-    });
-    return { due: due, fresh: fresh };
-  }
-
-  // ---- notation d'une carte ---------------------------------------------
-  function grade(id, known) {
-    const cs = cardState(id);
-    cs.seen += 1;
-    if (known) {
-      cs.correct += 1;
-      cs.box = Math.min(cs.box + 1, BOX_DAYS.length - 1);
-    } else {
-      cs.box = 1; // on la revoit très vite, sans pénaliser durement
-    }
-    cs.due = Date.now() + BOX_DAYS[cs.box] * DAY;
-    state.cards[id] = cs;
+  function recordResult(id, score, total) {
+    const prev = state.lessons[id] || { best: 0 };
+    state.lessons[id] = {
+      completed: true,
+      last: score,
+      best: Math.max(prev.best || 0, score),
+      total: total,
+    };
     save(state);
   }
-
-  function bumpStreak() {
-    const t = todayIndex();
-    if (state.lastDay === t) return;               // déjà compté aujourd'hui
-    if (state.lastDay === t - 1) state.streak += 1; // jour consécutif
-    else state.streak = 1;                          // (re)départ
-    state.lastDay = t;
-    state.sessionsDone += 1;
-    save(state);
-  }
-
-  // =========================================================================
-  //  ÉCRANS
-  // =========================================================================
 
   function h(html) { app.innerHTML = html; }
+  function esc(s) { return s; } // le contenu est de confiance (nos leçons)
 
+  // =========================================================================
+  //  ACCUEIL — la carte des leçons
+  // =========================================================================
   function screenHome() {
-    const c = countsForHome();
-    const deck = (window.DECKS || [])[0] || { title: "", subtitle: "" };
-    const nothing = c.due === 0 && c.fresh === 0;
     const heure = new Date().getHours();
-    const bonjour = heure < 18 ? "Prête pour aujourd'hui ?" : "Une petite séance ce soir ?";
+    const salut = heure < 6 ? "As-salāmu ʿalaykum"
+                : heure < 18 ? "As-salāmu ʿalaykum · prête à apprendre ?"
+                : "As-salāmu ʿalaykum · une leçon ce soir ?";
+
+    let rows = "";
+    LESSONS.forEach(function (l) {
+      const p = lessonProgress(l.id);
+      const done = p && p.completed;
+      const badge = done
+        ? '<span class="badge done">✓ ' + p.best + "/" + p.total + "</span>"
+        : '<span class="badge todo">À découvrir</span>';
+      rows +=
+        '<button class="lesson-row" data-id="' + l.id + '">' +
+          '<span class="lesson-num">' + l.n + "</span>" +
+          '<span class="lesson-meta">' +
+            '<span class="lesson-title">' + l.title + "</span>" +
+            '<span class="lesson-sub">' + l.subtitle + "</span>" +
+          "</span>" +
+          badge +
+        "</button>";
+    });
 
     h(
       '<div class="screen home">' +
         '<div class="bismillah">بِسْمِ اللَّه</div>' +
         "<h1>Apprendre l'arabe</h1>" +
-        '<p class="greeting">' + bonjour + "</p>" +
-
-        '<div class="stats">' +
-          '<div class="stat"><div class="num flame">' + state.streak + " 🔥</div>" +
-            '<div class="lbl">jours de suite</div></div>' +
-          '<div class="stat"><div class="num">' + learnedCount() + "</div>" +
-            '<div class="lbl">lettres acquises</div></div>' +
-        "</div>" +
-
-        '<div class="session-card">' +
-          '<div class="deck-title">' + deck.title + "</div>" +
-          '<div class="deck-sub">' + deck.subtitle + "</div>" +
-          (nothing
-            ? '<p class="done-note">Tout est révisé pour aujourd\'hui. ' +
-              "Reviens demain — c'est en revenant chaque jour que ça rentre. 🌱</p>"
-            : '<div class="queue">' +
-                (c.due   ? "<b>" + c.due + "</b> à revoir" : "") +
-                (c.due && c.fresh ? " · " : "") +
-                (c.fresh ? "<b>" + Math.min(c.fresh, NEW_PER_SESSION) + "</b> nouvelle" +
-                           (Math.min(c.fresh, NEW_PER_SESSION) > 1 ? "s" : "") : "") +
-              "</div>") +
-        "</div>" +
-
-        (nothing
-          ? '<button class="btn btn-ghost" id="start">Revoir quand même</button>'
-          : '<button class="btn btn-primary" id="start">Commencer ✨</button>') +
+        '<p class="greeting">' + salut + "</p>" +
+        '<div class="lessons">' + rows + "</div>" +
+        '<p class="footnote">Apprends à ton rythme. Reviens quand tu veux, ' +
+          "refais une leçon autant que tu le souhaites. 🌱</p>" +
       "</div>"
     );
 
-    document.getElementById("start").onclick = function () {
-      let session = buildSession();
-      if (session.length === 0) {                 // "revoir quand même"
-        session = allCards().slice(0, SESSION_MAX);
-      }
-      startStudy(session);
+    Array.prototype.forEach.call(document.querySelectorAll(".lesson-row"), function (btn) {
+      btn.onclick = function () { startLesson(btn.getAttribute("data-id")); };
+    });
+  }
+
+  // =========================================================================
+  //  LEÇON — phase APPRENTISSAGE
+  // =========================================================================
+  function startLesson(id) {
+    const lesson = LESSONS.filter(function (l) { return l.id === id; })[0];
+    if (!lesson) return screenHome();
+    teach(lesson, 0);
+  }
+
+  function topbar(label) {
+    return '<div class="topbar"><button class="btn btn-ghost" id="quit">‹ ' +
+           (label || "Leçons") + "</button></div>";
+  }
+
+  function teach(lesson, i) {
+    const card = lesson.cards[i];
+    const total = lesson.cards.length;
+    const pct = Math.round((i / total) * 100);
+    const last = i === total - 1;
+
+    h(
+      topbar("Leçons") +
+      '<div class="screen study">' +
+        '<div class="phase-label">Leçon ' + lesson.n + " · Apprentissage · " +
+          (i + 1) + "/" + total + "</div>" +
+        '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
+        '<div class="card concept" id="card">' +
+          '<div class="concept-front">' + card.front + "</div>" +
+          '<div class="reveal-hint" id="hint">touche pour voir l\'exemple</div>' +
+          '<div class="concept-back" id="back" hidden>' +
+            '<div class="example-word" dir="rtl">' + card.example + "</div>" +
+            '<div class="example-explain">' + card.explain + "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="nav-row">' +
+          (i > 0 ? '<button class="btn btn-ghost" id="prev">‹ Précédent</button>'
+                 : '<span class="spacer"></span>') +
+          '<button class="btn btn-primary" id="next" hidden>' +
+            (last ? "Passer au quiz →" : "Suivant →") + "</button>" +
+        "</div>" +
+      "</div>"
+    );
+
+    let revealed = false;
+    function reveal() {
+      if (revealed) return;
+      revealed = true;
+      document.getElementById("back").hidden = false;
+      document.getElementById("hint").style.visibility = "hidden";
+      document.getElementById("next").hidden = false;
+    }
+
+    document.getElementById("quit").onclick = screenHome;
+    document.getElementById("card").onclick = reveal;
+    if (i > 0) document.getElementById("prev").onclick = function () { teach(lesson, i - 1); };
+    document.getElementById("next").onclick = function () {
+      if (last) startQuiz(lesson);
+      else teach(lesson, i + 1);
     };
   }
 
-  // ---- étude -------------------------------------------------------------
-  function startStudy(session) {
-    let i = 0;
-
-    function renderCard() {
-      const entry = session[i];
-      const card = entry.card;
-      const pct = Math.round((i / session.length) * 100);
-
-      h(
-        '<div class="topbar"><button class="btn btn-ghost" id="quit">‹ Accueil</button></div>' +
-        '<div class="screen study">' +
-          '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
-          '<div class="card" id="card">' +
-            '<div class="glyph" dir="rtl">' + card.front + "</div>" +
-            '<div class="hint">touche la carte pour voir la réponse</div>' +
-          "</div>" +
-          '<div class="reveal-row">' +
-            '<button class="btn btn-primary" id="reveal">Voir la réponse</button>' +
-          "</div>" +
-        "</div>"
-      );
-
-      document.getElementById("quit").onclick = screenHome;
-      document.getElementById("card").onclick = revealCard;
-      document.getElementById("reveal").onclick = revealCard;
-    }
-
-    function revealCard() {
-      const entry = session[i];
-      const card = entry.card;
-      const pct = Math.round((i / session.length) * 100);
-
-      h(
-        '<div class="topbar"><button class="btn btn-ghost" id="quit">‹ Accueil</button></div>' +
-        '<div class="screen study">' +
-          '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
-          '<div class="card">' +
-            '<div class="back">' +
-              '<div class="glyph-sm" dir="rtl">' + card.front + "</div>" +
-              '<div class="name">' + card.name + "</div>" +
-              '<div class="sound">son : ' + card.sound + "</div>" +
-              '<div class="example">' +
-                '<div class="word" dir="rtl">' + card.example + "</div>" +
-                '<div class="gloss">' + card.translit + " — <b>" + card.fr + "</b></div>" +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-          '<div class="actions">' +
-            '<button class="btn btn-again" id="again">À revoir</button>' +
-            '<button class="btn btn-good" id="good">Je savais ✓</button>' +
-          "</div>" +
-        "</div>"
-      );
-
-      document.getElementById("quit").onclick = screenHome;
-      document.getElementById("again").onclick = function () { answer(false); };
-      document.getElementById("good").onclick  = function () { answer(true); };
-    }
-
-    function answer(known) {
-      grade(session[i].card.id, known);
-      i += 1;
-      if (i >= session.length) finish(session.length);
-      else renderCard();
-    }
-
-    renderCard();
+  // =========================================================================
+  //  LEÇON — phase QUIZ
+  // =========================================================================
+  function startQuiz(lesson) {
+    quiz(lesson, 0, 0);
   }
 
-  // ---- félicitations -----------------------------------------------------
-  function finish(n) {
-    bumpStreak();
+  function quiz(lesson, i, score) {
+    const item = lesson.quiz[i];
+    const total = lesson.quiz.length;
+    const pct = Math.round((i / total) * 100);
+
+    let opts = "";
+    item.options.forEach(function (o, idx) {
+      opts += '<button class="opt" data-i="' + idx + '"><span dir="auto">' + o + "</span></button>";
+    });
+
     h(
-      '<div class="screen celebrate">' +
-        '<div class="mashallah">ما شاء الله</div>' +
-        "<h2>Séance terminée !</h2>" +
-        '<div class="stats">' +
-          '<div class="stat"><div class="num">' + n + "</div>" +
-            '<div class="lbl">cartes revues</div></div>' +
-          '<div class="stat"><div class="num flame">' + state.streak + " 🔥</div>" +
-            '<div class="lbl">jours de suite</div></div>' +
-          '<div class="stat"><div class="num">' + learnedCount() + "</div>" +
-            '<div class="lbl">lettres acquises</div></div>' +
+      topbar("Leçons") +
+      '<div class="screen study">' +
+        '<div class="phase-label">Leçon ' + lesson.n + " · Quiz · " +
+          (i + 1) + "/" + total + "</div>" +
+        '<div class="progress quiz"><span style="width:' + pct + '%"></span></div>' +
+        '<div class="question">' + item.q + "</div>" +
+        '<div class="options">' + opts + "</div>" +
+        '<div class="feedback" id="feedback" hidden></div>' +
+        '<div class="nav-row center">' +
+          '<button class="btn btn-primary" id="next" hidden>' +
+            (i === total - 1 ? "Voir le résultat →" : "Question suivante →") + "</button>" +
         "</div>" +
-        "<p>Chaque jour compte plus que chaque carte.<br>À demain, in shā' Allah. 🌱</p>" +
-        '<button class="btn btn-primary" id="home">Retour à l\'accueil</button>' +
       "</div>"
     );
+
+    document.getElementById("quit").onclick = screenHome;
+
+    let answered = false;
+    let wasCorrect = false;
+    const buttons = document.querySelectorAll(".opt");
+    Array.prototype.forEach.call(buttons, function (btn) {
+      btn.onclick = function () {
+        if (answered) return;
+        answered = true;
+        const chosen = parseInt(btn.getAttribute("data-i"), 10);
+        wasCorrect = chosen === item.answer;
+
+        Array.prototype.forEach.call(buttons, function (b, idx) {
+          b.disabled = true;
+          if (idx === item.answer) b.classList.add("correct");
+          else if (idx === chosen) b.classList.add("wrong");
+        });
+
+        const fb = document.getElementById("feedback");
+        fb.hidden = false;
+        fb.className = "feedback " + (wasCorrect ? "ok" : "no");
+        fb.innerHTML = (wasCorrect ? "✓ Bien vu ! " : "Pas tout à fait. ") + item.explain;
+
+        document.getElementById("next").hidden = false;
+      };
+    });
+
+    document.getElementById("next").onclick = function () {
+      const newScore = score + (wasCorrect ? 1 : 0);
+      if (i === total - 1) result(lesson, newScore, total);
+      else quiz(lesson, i + 1, newScore);
+    };
+  }
+
+  // =========================================================================
+  //  RÉSULTAT
+  // =========================================================================
+  function result(lesson, score, total) {
+    recordResult(lesson.id, score, total);
+    const ratio = score / total;
+    const arabic = ratio === 1 ? "ما شاء الله" : ratio >= 0.6 ? "أَحْسَنْتِ" : "وَاصِلِي";
+    const msg = ratio === 1
+        ? "Sans faute. Tu maîtrises cette leçon."
+        : ratio >= 0.6
+        ? "Très bien. Relis les cartes signalées et tu l'auras entière."
+        : "C'est en revoyant qu'on comprend. Reprends la leçon tranquillement — tu vas y arriver.";
+
+    h(
+      '<div class="screen celebrate">' +
+        '<div class="mashallah">' + arabic + "</div>" +
+        '<div class="score-big">' + score + "<span>/" + total + "</span></div>" +
+        "<h2>Leçon " + lesson.n + " terminée</h2>" +
+        "<p>" + msg + "</p>" +
+        '<div class="result-actions">' +
+          '<button class="btn btn-primary" id="again">Refaire le quiz</button>' +
+          '<button class="btn btn-ghost" id="relearn">Revoir la leçon</button>' +
+          '<button class="btn btn-ghost" id="home">Retour aux leçons</button>' +
+        "</div>" +
+      "</div>"
+    );
+    document.getElementById("again").onclick = function () { startQuiz(lesson); };
+    document.getElementById("relearn").onclick = function () { teach(lesson, 0); };
     document.getElementById("home").onclick = screenHome;
   }
 
   // ---- démarrage ---------------------------------------------------------
   screenHome();
 
-  // service worker (hors-ligne + installation sur l'écran d'accueil)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("./sw.js").catch(function () {});

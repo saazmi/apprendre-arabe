@@ -129,32 +129,74 @@ body {
 .stat .lbl { color: var(--ink-soft); font-size: 0.9rem; margin-top: 0.4rem; }
 .stat .flame { color: var(--gold); }
 
-.session-card {
+/* ---- CARTE DES LEÇONS (accueil) ----------------------------------------- */
+
+.lessons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
+  text-align: left;
+}
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
   background: var(--surface);
-  border-radius: var(--radius);
+  border: none;
+  border-radius: 20px;
   box-shadow: var(--shadow);
-  padding: clamp(1.6rem, 4vw, 2.4rem);
-  margin: 1.5rem 0;
+  padding: 1.1rem 1.3rem;
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
 }
-.session-card .deck-title { font-size: 1.3rem; font-weight: 700; }
-.session-card .deck-sub { color: var(--ink-soft); margin-top: 0.25rem; }
-.session-card .queue {
-  margin: 1.3rem 0 1.6rem;
-  color: var(--ink-soft);
-  font-size: 1.05rem;
+.lesson-row:active { transform: scale(0.985); }
+.lesson-num {
+  flex: 0 0 auto;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--emerald), var(--emerald-d));
 }
-.session-card .queue b { color: var(--ink); font-weight: 700; }
+.lesson-meta { flex: 1; min-width: 0; }
+.lesson-title { display: block; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+.lesson-sub { display: block; color: var(--ink-soft); font-size: 0.95rem; margin-top: 0.15rem; }
+.badge {
+  flex: 0 0 auto;
+  font-size: 0.85rem;
+  font-weight: 650;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge.done { background: rgba(15, 118, 110, 0.14); color: var(--emerald); }
+.badge.todo { background: rgba(201, 154, 63, 0.16); color: var(--gold); }
+@media (prefers-color-scheme: dark) {
+  .badge.done { background: rgba(45, 212, 191, 0.16); }
+}
 
-.done-note {
-  color: var(--ink-soft);
-  font-size: 1.05rem;
-  line-height: 1.6;
-  margin-top: 1rem;
-}
+.footnote { color: var(--ink-soft); font-size: 1rem; line-height: 1.6; margin-top: 0.5rem; }
 
-/* ---- CARTE (étude) ------------------------------------------------------- */
+/* ---- LEÇON (apprentissage + quiz) --------------------------------------- */
 
 .study { width: 100%; max-width: 820px; }
+
+.phase-label {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.8rem;
+}
 
 .progress {
   height: 8px;
@@ -175,90 +217,141 @@ body {
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  min-height: min(52vh, 420px);
+  animation: cardIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+.card.concept {
+  min-height: min(46vh, 380px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  position: relative;
+  padding: clamp(1.6rem, 4vw, 2.6rem);
   cursor: pointer;
-  animation: cardIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  text-align: center;
 }
-@keyframes cardIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: none; } }
-
-.card .glyph {
-  font-family: var(--arabic);
-  direction: rtl;
-  font-size: clamp(6rem, 26vh, 13rem);
-  line-height: 1;
+.concept-front {
+  font-size: clamp(1.4rem, 3.6vw, 1.9rem);
+  line-height: 1.5;
   color: var(--ink);
-  font-weight: 500;
+  max-width: 40ch;
 }
-.card .hint {
-  position: absolute;
-  bottom: 1.4rem;
+.concept-front b { color: var(--emerald); font-weight: 750; }
+.reveal-hint {
+  margin-top: 1.6rem;
   color: var(--ink-soft);
   font-size: 0.95rem;
-  opacity: 0.75;
+  opacity: 0.8;
 }
-
-.card .back { text-align: center; animation: fade 0.3s ease both; }
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.card .back .glyph-sm {
-  font-family: var(--arabic);
-  direction: rtl;
-  font-size: clamp(3.5rem, 12vh, 6rem);
-  color: var(--emerald);
-  line-height: 1;
-}
-.card .back .name { font-size: 2rem; font-weight: 750; margin-top: 0.5rem; }
-.card .back .sound { color: var(--ink-soft); font-size: 1.2rem; margin-top: 0.3rem; }
-.card .back .example {
-  margin-top: 1.6rem;
-  padding-top: 1.4rem;
+.concept-back {
+  margin-top: 1.8rem;
+  padding-top: 1.6rem;
   border-top: 1px solid rgba(90, 107, 104, 0.18);
+  width: 100%;
+  animation: fade 0.3s ease both;
 }
-.card .back .example .word {
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.example-word {
   font-family: var(--arabic);
-  direction: rtl;
-  font-size: clamp(2.4rem, 8vh, 3.4rem);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.6;
   color: var(--ink);
 }
-.card .back .example .gloss { color: var(--ink-soft); font-size: 1.15rem; margin-top: 0.35rem; }
-.card .back .example .gloss b { color: var(--ink); }
+.example-explain { color: var(--ink-soft); font-size: 1.1rem; line-height: 1.55; margin-top: 0.9rem; }
 
-/* barre d'actions */
-.actions {
+.nav-row {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1.6rem;
-  justify-content: center;
 }
-.actions .btn { flex: 1; max-width: 260px; }
-.btn-again { background: var(--again); box-shadow: 0 8px 24px rgba(176, 106, 79, 0.3); }
-.btn-good  { background: var(--good);  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.3); }
+.nav-row.center { justify-content: center; }
+.nav-row .spacer { flex: 1; }
 
-.reveal-row { margin-top: 1.6rem; text-align: center; }
+/* quiz */
+.question {
+  font-size: clamp(1.4rem, 3.6vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--ink);
+  margin: 0.5rem 0 1.6rem;
+}
+.options { display: flex; flex-direction: column; gap: 0.8rem; }
+.opt {
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 1.05rem 1.3rem;
+  font-family: var(--arabic), var(--font);
+  font-size: 1.35rem;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.opt:active { transform: scale(0.99); }
+.opt:disabled { cursor: default; }
+.opt.correct {
+  border-color: var(--emerald);
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--emerald);
+  font-weight: 700;
+}
+.opt.wrong {
+  border-color: var(--again);
+  background: rgba(176, 106, 79, 0.1);
+  color: var(--again);
+}
+.feedback {
+  margin-top: 1.3rem;
+  padding: 1rem 1.2rem;
+  border-radius: 14px;
+  font-size: 1.08rem;
+  line-height: 1.5;
+  animation: fade 0.3s ease both;
+}
+.feedback.ok { background: rgba(15, 118, 110, 0.1); color: var(--emerald-d); }
+.feedback.no { background: rgba(176, 106, 79, 0.1); color: var(--again); }
+@media (prefers-color-scheme: dark) {
+  .feedback.ok { color: var(--emerald); }
+}
 
-/* ---- FÉLICITATIONS ------------------------------------------------------- */
+/* ---- RÉSULTAT ------------------------------------------------------------ */
 
 .celebrate { text-align: center; }
 .celebrate .mashallah {
   font-family: var(--arabic);
-  direction: rtl;
   color: var(--gold);
   font-size: clamp(2.2rem, 7vw, 3.4rem);
   animation: pop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 @keyframes pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
-.celebrate h2 { font-size: 1.8rem; margin-top: 0.6rem; font-weight: 750; }
-.celebrate p { color: var(--ink-soft); font-size: 1.15rem; margin-top: 0.8rem; line-height: 1.6; }
-.celebrate .stats { margin: 2rem 0; }
+.score-big {
+  font-size: clamp(3rem, 10vw, 4.5rem);
+  font-weight: 800;
+  color: var(--emerald);
+  margin: 0.8rem 0 0.2rem;
+  line-height: 1;
+}
+.score-big span { color: var(--ink-soft); font-size: 0.5em; font-weight: 650; }
+.celebrate h2 { font-size: 1.6rem; margin-top: 0.4rem; font-weight: 750; }
+.celebrate p { color: var(--ink-soft); font-size: 1.15rem; margin-top: 0.9rem; line-height: 1.6; max-width: 46ch; margin-left: auto; margin-right: auto; }
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 2rem;
+}
+.result-actions .btn { min-width: 260px; }
 
 .topbar {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top));
   left: max(1rem, env(safe-area-inset-left));
+  z-index: 10;
 }
 .topbar .btn-ghost { padding: 0.6rem 1rem; font-size: 1rem; }
