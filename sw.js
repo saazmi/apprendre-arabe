@@ -2,7 +2,7 @@
    Change CACHE (v1 → v2…) à chaque mise à jour du contenu pour forcer
    le rafraîchissement. */
 
-const CACHE = "arabe-v2";
+const CACHE = "arabe-v3";
 const ASSETS = [
   "./",
   "./index.html",
