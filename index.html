@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apprendre l'arabe — Bientôt</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(160deg, #0f766e 0%, #115e59 60%, #134e4a 100%);
+      color: #f0fdfa;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .card { max-width: 32rem; }
+    .arabic {
+      font-size: clamp(3rem, 12vw, 6rem);
+      line-height: 1;
+      margin: 0 0 1rem;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+      margin: 0 0 0.75rem;
+      font-weight: 700;
+    }
+    p {
+      font-size: clamp(1rem, 3vw, 1.15rem);
+      margin: 0 auto;
+      max-width: 26rem;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    .soon {
+      display: inline-block;
+      margin-top: 1.75rem;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid rgba(240, 253, 250, 0.35);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="arabic" dir="rtl" lang="ar">العربية</div>
+    <h1>Apprendre l'arabe</h1>
+    <p>Un espace d'apprentissage conçu sur mesure, avec des cartes mémoire pensées pour toi.</p>
+    <span class="soon">Bientôt disponible</span>
+  </main>
+</body>
+</html>
