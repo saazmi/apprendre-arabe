@@ -17,8 +17,8 @@
 window.LESSONS = [
   /* ---------------------------------------------------------------------- */
   {
-    id: "s5",
-    n: 5,
+    id: "g1",
+    n: 1,
     title: "Les 3 types de mots",
     subtitle: "Nom · verbe · particule — puis défini & indéfini",
     cards: [
@@ -60,7 +60,17 @@ window.LESSONS = [
       {
         front: "Le ل de الـ se prononce… ou pas. C'est la règle <b>solaire / lunaire</b>.",
         example: "الْقَمَر → al-qamar (lunaire) · الشَّمْس → ash-shams (solaire)",
-        explain: "Astuce : قمر (lune) = lunaire, ل prononcé ; شمس (soleil) = solaire, ل muet (chadda).",
+        explain: "Astuce : قمر (lune) = lunaire, ل prononcé ; شمس (soleil) = solaire, ل muet.",
+      },
+      {
+        front: "La <b>chadda</b> (ّ) — elle <b>double</b> une consonne.",
+        example: "بّ = « bb » · الشَّمْس (ash-shams)",
+        explain: "Avec الـ + lettre solaire, le ل est absorbé : sa trace est la chadda sur la lettre suivante.",
+      },
+      {
+        front: "La chadda peut aussi <b>changer le sens</b> d'un mot, en doublant une lettre de la racine.",
+        example: "بَاب (porte) → بَوَّاب (portier) · عَلِمَ (il a su) → عَلَّمَ (il a enseigné)",
+        explain: "Doubler une lettre crée souvent un sens lié : « celui de la porte », « faire savoir = enseigner ».",
       },
     ],
     quiz: [
@@ -100,13 +110,19 @@ window.LESSONS = [
         answer: 0,
         explain: "الـ + perte du tanwin → الْكِتَابُ (le livre).",
       },
+      {
+        q: "Dans الشَّمْس, la chadda sur le ش indique que…",
+        options: ["le ل de الـ est absorbé (muet)", "le ش est emphatique"],
+        answer: 0,
+        explain: "Lettre solaire : le ل ne se prononce pas, sa trace est la chadda.",
+      },
     ],
   },
 
   /* ---------------------------------------------------------------------- */
   {
-    id: "s6",
-    n: 6,
+    id: "g2",
+    n: 2,
     title: "La phrase & l'annexion",
     subtitle: "مبتدأ + خبر — puis l'iḍāfa (« de »)",
     cards: [
@@ -199,8 +215,8 @@ window.LESSONS = [
 
   /* ---------------------------------------------------------------------- */
   {
-    id: "s7",
-    n: 7,
+    id: "g3",
+    n: 3,
     title: "Genre, nombre & cas",
     subtitle: "مذكّر/مؤنّث · duel & pluriel · l'i'rāb",
     cards: [
@@ -265,8 +281,8 @@ window.LESSONS = [
 
   /* ---------------------------------------------------------------------- */
   {
-    id: "s8",
-    n: 8,
+    id: "g4",
+    n: 4,
     title: "Pronoms & l'adjectif",
     subtitle: "الضمائر · le نَعْت (accord sur 4 points)",
     cards: [
