@@ -1,0 +1,264 @@
+/* =========================================================================
+   Apprendre l'arabe — design calme, confiance, iPad paysage.
+   Un seul élément à la fois. Beaucoup d'air. Contraste doux mais net.
+   ========================================================================= */
+
+:root {
+  --bg:        #f4f1ea;   /* crème doux, faible stimulation */
+  --bg-2:      #ece7dc;
+  --surface:   #ffffff;
+  --ink:       #1c2b29;   /* texte principal */
+  --ink-soft:  #5a6b68;   /* texte secondaire */
+  --emerald:   #0f766e;
+  --emerald-d: #115e59;
+  --gold:      #c99a3f;
+  --good:      #0f766e;
+  --again:     #b06a4f;   /* terracotta doux, jamais agressif */
+  --shadow:    0 10px 40px rgba(20, 45, 42, 0.12);
+  --radius:    28px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  --arabic: "Geeza Pro", "Al Bayan", "Noto Naskh Arabic", "Amiri", "Segoe UI", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #10201d;
+    --bg-2:    #0b1815;
+    --surface: #172a26;
+    --ink:     #eef4f2;
+    --ink-soft:#9fb3ae;
+    --emerald: #2dd4bf;
+    --emerald-d:#14b8a6;
+    --gold:    #e0b65f;
+    --shadow:  0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: radial-gradient(120% 120% at 50% 0%, var(--bg) 0%, var(--bg-2) 100%);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+}
+
+#app {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(2vh, env(safe-area-inset-top)) max(3vw, env(safe-area-inset-right))
+           max(2vh, env(safe-area-inset-bottom)) max(3vw, env(safe-area-inset-left));
+}
+
+/* ---- éléments communs ---------------------------------------------------- */
+
+.screen {
+  width: 100%;
+  max-width: 760px;
+  animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.btn {
+  font-family: var(--font);
+  font-size: 1.15rem;
+  font-weight: 650;
+  border: none;
+  border-radius: 999px;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+  color: #fff;
+  background: var(--emerald);
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-d) 100%);
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.35);
+  font-size: 1.35rem;
+  padding: 1.15rem 2.6rem;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 550;
+  box-shadow: none;
+}
+
+/* ---- ACCUEIL ------------------------------------------------------------- */
+
+.home { text-align: center; }
+.home .bismillah {
+  font-family: var(--arabic);
+  direction: rtl;
+  color: var(--gold);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin-bottom: 0.4rem;
+  opacity: 0.9;
+}
+.home h1 {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+.home .greeting { color: var(--ink-soft); margin-top: 0.5rem; font-size: 1.1rem; }
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+  margin: 2.2rem 0;
+}
+.stat { text-align: center; }
+.stat .num {
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  font-weight: 800;
+  color: var(--emerald);
+  line-height: 1;
+}
+.stat .lbl { color: var(--ink-soft); font-size: 0.9rem; margin-top: 0.4rem; }
+.stat .flame { color: var(--gold); }
+
+.session-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: clamp(1.6rem, 4vw, 2.4rem);
+  margin: 1.5rem 0;
+}
+.session-card .deck-title { font-size: 1.3rem; font-weight: 700; }
+.session-card .deck-sub { color: var(--ink-soft); margin-top: 0.25rem; }
+.session-card .queue {
+  margin: 1.3rem 0 1.6rem;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+.session-card .queue b { color: var(--ink); font-weight: 700; }
+
+.done-note {
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+/* ---- CARTE (étude) ------------------------------------------------------- */
+
+.study { width: 100%; max-width: 820px; }
+
+.progress {
+  height: 8px;
+  background: rgba(15, 118, 110, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.6rem;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--emerald), var(--gold));
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: min(52vh, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  cursor: pointer;
+  animation: cardIn 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+.card .glyph {
+  font-family: var(--arabic);
+  direction: rtl;
+  font-size: clamp(6rem, 26vh, 13rem);
+  line-height: 1;
+  color: var(--ink);
+  font-weight: 500;
+}
+.card .hint {
+  position: absolute;
+  bottom: 1.4rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  opacity: 0.75;
+}
+
+.card .back { text-align: center; animation: fade 0.3s ease both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.card .back .glyph-sm {
+  font-family: var(--arabic);
+  direction: rtl;
+  font-size: clamp(3.5rem, 12vh, 6rem);
+  color: var(--emerald);
+  line-height: 1;
+}
+.card .back .name { font-size: 2rem; font-weight: 750; margin-top: 0.5rem; }
+.card .back .sound { color: var(--ink-soft); font-size: 1.2rem; margin-top: 0.3rem; }
+.card .back .example {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(90, 107, 104, 0.18);
+}
+.card .back .example .word {
+  font-family: var(--arabic);
+  direction: rtl;
+  font-size: clamp(2.4rem, 8vh, 3.4rem);
+  color: var(--ink);
+}
+.card .back .example .gloss { color: var(--ink-soft); font-size: 1.15rem; margin-top: 0.35rem; }
+.card .back .example .gloss b { color: var(--ink); }
+
+/* barre d'actions */
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.6rem;
+  justify-content: center;
+}
+.actions .btn { flex: 1; max-width: 260px; }
+.btn-again { background: var(--again); box-shadow: 0 8px 24px rgba(176, 106, 79, 0.3); }
+.btn-good  { background: var(--good);  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.3); }
+
+.reveal-row { margin-top: 1.6rem; text-align: center; }
+
+/* ---- FÉLICITATIONS ------------------------------------------------------- */
+
+.celebrate { text-align: center; }
+.celebrate .mashallah {
+  font-family: var(--arabic);
+  direction: rtl;
+  color: var(--gold);
+  font-size: clamp(2.2rem, 7vw, 3.4rem);
+  animation: pop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+.celebrate h2 { font-size: 1.8rem; margin-top: 0.6rem; font-weight: 750; }
+.celebrate p { color: var(--ink-soft); font-size: 1.15rem; margin-top: 0.8rem; line-height: 1.6; }
+.celebrate .stats { margin: 2rem 0; }
+
+.topbar {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  left: max(1rem, env(safe-area-inset-left));
+}
+.topbar .btn-ghost { padding: 0.6rem 1rem; font-size: 1rem; }
