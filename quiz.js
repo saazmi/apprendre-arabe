@@ -66,6 +66,14 @@
     { ar: "طَالِب", fr: "étudiant" },
     { ar: "كَافِر", fr: "mécréant" },
   ];
+  // pluriels de choses (non-humains) — pour la règle d'accord au féminin singulier
+  const NONHUMAN = [
+    { pl: "كُتُب", fr: "livres" },
+    { pl: "بُيُوت", fr: "maisons" },
+    { pl: "أَقْلَام", fr: "stylos" },
+    { pl: "أَيَّام", fr: "jours" },
+    { pl: "أَبْوَاب", fr: "portes" },
+  ];
 
   // lettres solaires (le ل de الـ ne se prononce pas)
   const SOLAR = "تثدذرزسشصضطظلن";
@@ -250,11 +258,12 @@
     adj_place: {
       lessons: ["g4"],
       make: function () {
+        const w = rand(NOUNS);
         return {
-          q: "En arabe, l'adjectif (النَّعْت) se place…",
+          q: "Où se place l'adjectif qui qualifie " + w.ar + " (" + w.fr + ") ?",
           options: ["après le nom", "avant le nom"],
           answer: 0,
-          explain: "L'adjectif suit toujours le nom qu'il qualifie.",
+          explain: "L'adjectif (النَّعْت) suit toujours le nom qu'il qualifie.",
         };
       },
     },
@@ -262,8 +271,9 @@
     adj_agree: {
       lessons: ["g4"],
       make: function () {
+        const w = rand(NOUNS);
         return {
-          q: "L'adjectif s'accorde avec le nom sur combien de points ?",
+          q: "Pour accorder un adjectif à " + w.ar + " (" + w.fr + "), sur combien de points s'accorde-t-il ?",
           options: ["4 : genre, nombre, définition, cas", "1 : le genre", "2 : genre et nombre"],
           answer: 0,
           explain: "Genre, nombre, définition (نكرة/معرفة) ET cas — les quatre à la fois.",
@@ -274,11 +284,12 @@
     nonhuman: {
       lessons: ["g4"],
       make: function () {
+        const w = rand(NONHUMAN);
         return {
-          q: "Un pluriel de choses (non-humain, ex. كُتُب) prend un adjectif…",
+          q: "Pour qualifier " + w.pl + " (" + w.fr + ", un pluriel de choses), l'adjectif est…",
           options: ["féminin singulier", "masculin pluriel"],
           answer: 0,
-          explain: "Règle du non-humain : كُتُبٌ جَدِيدَةٌ (et non جَدِيدُونَ).",
+          explain: "Règle du non-humain : l'adjectif se met au féminin singulier — " + w.pl + " جَدِيدَة.",
         };
       },
     },
@@ -291,15 +302,56 @@
   //     même question exacte)
   // =========================================================================
   function build(templates, n) {
+    templates = templates.filter(Boolean);
+    const T = templates.length;
+    if (!T) return [];
+    // quota : au mieux ⌊n/T⌋+1 questions d'un même gabarit (ex. 10 q, 4 gabarits → 3)
+    const quota = Math.floor(n / T) + 1;
+
     const out = [];
     const seen = {};
-    function add(q) {
-      if (q && !seen[q.q]) { seen[q.q] = 1; out.push(q); return true; }
+    const count = new Map();
+    const exhausted = new Set();
+    templates.forEach(function (t) { count.set(t, 0); });
+
+    // essaie d'ajouter une question INÉDITE issue du gabarit t
+    function tryAdd(t, tries) {
+      for (let k = 0; k < tries; k++) {
+        const q = t.make();
+        if (q && !seen[q.q]) {
+          seen[q.q] = 1; count.set(t, count.get(t) + 1); out.push(q); return true;
+        }
+      }
       return false;
     }
-    shuffle(templates).forEach(function (t) { if (out.length < n) add(t.make()); });
+
+    // 1) couverture : un de chaque gabarit, dans un ordre aléatoire
+    shuffle(templates).forEach(function (t) { if (out.length < n) tryAdd(t, 6); });
+
+    // 2) remplissage DISPERSÉ : tirage aléatoire parmi les gabarits encore
+    //    sous le quota — la distribution varie à chaque quiz
     let guard = 0;
-    while (out.length < n && guard < 400) { guard++; add(rand(templates).make()); }
+    while (out.length < n && guard < 800) {
+      guard++;
+      const eligible = templates.filter(function (t) {
+        return count.get(t) < quota && !exhausted.has(t);
+      });
+      if (!eligible.length) break;
+      const t = rand(eligible);
+      if (!tryAdd(t, 8)) exhausted.add(t);   // plus de question inédite pour ce gabarit
+    }
+
+    // 3) filet de sécurité : si trop peu de variété pour atteindre n sous le
+    //    quota, on complète en relâchant le quota (rare — mieux vaut n questions)
+    guard = 0;
+    while (out.length < n && guard < 800) {
+      guard++;
+      const usable = templates.filter(function (t) { return !exhausted.has(t); });
+      if (!usable.length) break;
+      const t = rand(usable);
+      if (!tryAdd(t, 8)) exhausted.add(t);
+    }
+
     return shuffle(out);
   }
 
