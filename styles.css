@@ -19,19 +19,19 @@
   --shadow:    0 14px 44px rgba(2, 8, 24, 0.55);
   --radius:    28px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
-  --arabic: "AppArabic", "Geeza Pro", "Noto Sans Arabic", "Segoe UI", sans-serif;
+  --arabic: "AppArabic", "Scheherazade New", "Noto Naskh Arabic", "Geeza Pro", serif;
 }
 
-/* Police arabe claire et « à plat » — plus lisible pour une débutante que
-   les fontes calligraphiques (Naskh) qui empilent les lettres. */
+/* Police arabe : Scheherazade New — un Naskh imprimé, lisible et authentique
+   (proche du texte coranique), bundlé en local pour un rendu identique partout. */
 @font-face {
   font-family: "AppArabic";
-  src: url("./fonts/noto-sans-arabic-400.woff2") format("woff2");
+  src: url("./fonts/scheherazade-new-400.woff2") format("woff2");
   font-weight: 400; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: "AppArabic";
-  src: url("./fonts/noto-sans-arabic-700.woff2") format("woff2");
+  src: url("./fonts/scheherazade-new-700.woff2") format("woff2");
   font-weight: 700; font-style: normal; font-display: swap;
 }
 
@@ -222,7 +222,7 @@ bdi { font-family: var(--arabic); font-style: normal; }
 
 .vcard { min-height: min(46vh, 380px); display: flex; flex-direction: column;
   align-items: center; justify-content: center; padding: 2rem; cursor: pointer; text-align: center; }
-.vcard-ar { font-family: var(--arabic); font-size: clamp(3.5rem, 14vh, 6rem); color: var(--ink); line-height: 1.3; }
+.vcard-ar { font-family: var(--arabic); font-size: clamp(3.5rem, 14vh, 6rem); color: var(--ink); line-height: 1.5; }
 .vcard-back { margin-top: 1.4rem; padding-top: 1.4rem;
   border-top: 1px solid rgba(157, 177, 216, 0.2); animation: fade 0.3s ease both; }
 .vcard-tr { font-size: clamp(1.1rem, 3.2vw, 1.5rem); color: var(--ink-soft); font-style: italic; }
