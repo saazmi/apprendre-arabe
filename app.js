@@ -130,7 +130,8 @@
           '<div class="concept-front" dir="ltr">' + bidi(card.front) + "</div>" +
           '<div class="reveal-hint" id="hint">touche pour voir l\'exemple</div>' +
           '<div class="concept-back" id="back" hidden>' +
-            '<div class="example-word" dir="ltr">' + bidi(card.example) + "</div>" +
+            '<div class="example-word" dir="ltr">' +
+              bidi(card.example).replace(/\s*·\s*/g, "<br>") + "</div>" +
             '<div class="example-explain" dir="ltr">' + bidi(card.explain) + "</div>" +
           "</div>" +
         "</div>" +
