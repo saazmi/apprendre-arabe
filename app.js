@@ -187,7 +187,7 @@
         '<div class="card concept" id="card">' +
           '<div class="concept-front" dir="ltr">' + bidi(card.front) + "</div>" +
           '<div class="reveal-hint" id="hint">touche pour voir l\'exemple</div>' +
-          '<div class="concept-back" id="back" hidden>' +
+          '<div class="concept-back" id="cardback" hidden>' +
             '<div class="example-word" dir="ltr">' + bidi(card.example).replace(/\s*·\s*/g, "<br>") + "</div>" +
             '<div class="example-explain" dir="ltr">' + bidi(card.explain) + "</div>" +
           "</div>" +
@@ -203,7 +203,7 @@
     let revealed = false;
     function reveal() {
       if (revealed) return; revealed = true;
-      document.getElementById("back").hidden = false;
+      document.getElementById("cardback").hidden = false;
       document.getElementById("hint").style.visibility = "hidden";
       document.getElementById("next").hidden = false;
     }
@@ -268,7 +268,10 @@
         '<div class="card vcard" id="card">' +
           '<div class="vcard-ar" dir="rtl">' + w.ar + "</div>" +
           '<div class="reveal-hint" id="hint">touche pour voir le sens</div>' +
-          '<div class="vcard-fr" id="back" hidden>' + w.fr + "</div>" +
+          '<div class="vcard-back" id="cardback" hidden>' +
+            '<div class="vcard-tr">' + w.tr + "</div>" +
+            '<div class="vcard-fr">' + w.fr + "</div>" +
+          "</div>" +
         "</div>" +
         '<div class="nav-row">' +
           (i > 0 ? '<button class="btn btn-ghost" id="prev">‹ Précédent</button>' : '<span class="spacer"></span>') +
@@ -281,7 +284,7 @@
     let revealed = false;
     function reveal() {
       if (revealed) return; revealed = true;
-      document.getElementById("back").hidden = false;
+      document.getElementById("cardback").hidden = false;
       document.getElementById("hint").style.visibility = "hidden";
     }
     document.getElementById("card").onclick = reveal;

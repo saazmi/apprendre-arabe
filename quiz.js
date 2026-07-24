@@ -322,13 +322,13 @@
     return picks.map(function (w, i) {
       const others = words.filter(x => x.ar !== w.ar);
       if (i % 2 === 0) {
-        // sens : que signifie {ar} ?
+        // sens : que signifie {ar} ({tr}) ?
         const distract = sample(others, 3).map(x => x.fr);
         return {
-          q: "Que signifie " + w.ar + " ?",
+          q: "Que signifie " + w.ar + " (" + w.tr + ") ?",
           options: [w.fr].concat(distract),
           answer: 0,
-          explain: w.ar + " = " + w.fr + ".",
+          explain: w.ar + " — " + w.tr + " = " + w.fr + ".",
         };
       } else {
         // reconnaissance : quel mot signifie « {fr} » ?
@@ -337,7 +337,7 @@
           q: "Quel mot signifie « " + w.fr + " » ?",
           options: [w.ar].concat(distract),
           answer: 0,
-          explain: w.fr + " = " + w.ar + ".",
+          explain: w.fr + " = " + w.ar + " (" + w.tr + ").",
         };
       }
     });

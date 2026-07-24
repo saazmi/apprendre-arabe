@@ -2,7 +2,7 @@
    Change CACHE (v1 → v2…) à chaque mise à jour du contenu pour forcer
    le rafraîchissement. */
 
-const CACHE = "arabe-v8";
+const CACHE = "arabe-v9";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,8 @@ const ASSETS = [
   "./manifest.webmanifest",
   "./icon.svg",
   "./apple-touch-icon.png",
+  "./fonts/noto-sans-arabic-400.woff2",
+  "./fonts/noto-sans-arabic-700.woff2",
 ];
 
 self.addEventListener("install", function (e) {
