@@ -1,37 +1,25 @@
 /* =========================================================================
-   Apprendre l'arabe — design calme, confiance, iPad paysage.
+   Apprendre l'arabe — thème « ciel de nuit ».
+   Bleu nuit profond, étoiles dorées discrètes. Calme, iPad paysage.
    Un seul élément à la fois. Beaucoup d'air. Contraste doux mais net.
    ========================================================================= */
 
 :root {
-  --bg:        #f4f1ea;   /* crème doux, faible stimulation */
-  --bg-2:      #ece7dc;
-  --surface:   #ffffff;
-  --ink:       #1c2b29;   /* texte principal */
-  --ink-soft:  #5a6b68;   /* texte secondaire */
-  --emerald:   #0f766e;
-  --emerald-d: #115e59;
-  --gold:      #c99a3f;
-  --good:      #0f766e;
-  --again:     #b06a4f;   /* terracotta doux, jamais agressif */
-  --shadow:    0 10px 40px rgba(20, 45, 42, 0.12);
+  --bg:        #0b1c40;   /* bleu nuit */
+  --bg-2:      #050d22;   /* horizon plus sombre */
+  --surface:   #12274f;   /* cartes — bleu nuit un peu plus clair */
+  --surface-2: #16305e;
+  --ink:       #eaf1ff;   /* texte principal — blanc bleuté */
+  --ink-soft:  #9db1d8;   /* texte secondaire */
+  --emerald:   #5b8cff;   /* accent principal : bleu lumineux (clair de lune) */
+  --emerald-d: #3f6fe0;
+  --gold:      #e7c976;   /* les étoiles */
+  --good:      #56d6b0;   /* juste : vert-menthe doux */
+  --again:     #e6927a;   /* à revoir : corail doux, jamais agressif */
+  --shadow:    0 14px 44px rgba(2, 8, 24, 0.55);
   --radius:    28px;
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
-  --arabic: "Geeza Pro", "Al Bayan", "Noto Naskh Arabic", "Amiri", "Segoe UI", serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:      #10201d;
-    --bg-2:    #0b1815;
-    --surface: #172a26;
-    --ink:     #eef4f2;
-    --ink-soft:#9fb3ae;
-    --emerald: #2dd4bf;
-    --emerald-d:#14b8a6;
-    --gold:    #e0b65f;
-    --shadow:  0 10px 40px rgba(0, 0, 0, 0.4);
-  }
+  --arabic: "Amiri", "Geeza Pro", "Al Bayan", "Noto Naskh Arabic", "Segoe UI", serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -44,12 +32,24 @@ html, body {
 body {
   font-family: var(--font);
   color: var(--ink);
-  background: radial-gradient(120% 120% at 50% 0%, var(--bg) 0%, var(--bg-2) 100%);
+  /* ciel de nuit : dégradé bleu profond + quelques étoiles dorées discrètes */
+  background:
+    radial-gradient(1.5px 1.5px at 18% 22%, rgba(231, 201, 118, 0.55), transparent 60%),
+    radial-gradient(1.5px 1.5px at 72% 15%, rgba(231, 201, 118, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 44% 34%, rgba(234, 241, 255, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 86% 42%, rgba(234, 241, 255, 0.4), transparent 60%),
+    radial-gradient(1.5px 1.5px at 30% 60%, rgba(231, 201, 118, 0.35), transparent 60%),
+    radial-gradient(1px 1px at 62% 72%, rgba(234, 241, 255, 0.35), transparent 60%),
+    radial-gradient(130% 120% at 50% 0%, var(--bg) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   user-select: none;
 }
+
+/* l'arabe dans les passages isolés utilise la police arabe */
+bdi { font-family: var(--arabic); font-style: normal; }
 
 #app {
   min-height: 100dvh;
@@ -84,7 +84,7 @@ body {
 .btn:active { transform: scale(0.96); }
 .btn-primary {
   background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-d) 100%);
-  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.35);
+  box-shadow: 0 8px 24px rgba(91, 140, 255, 0.35);
   font-size: 1.35rem;
   padding: 1.15rem 2.6rem;
 }
@@ -177,11 +177,8 @@ body {
   border-radius: 999px;
   white-space: nowrap;
 }
-.badge.done { background: rgba(15, 118, 110, 0.14); color: var(--emerald); }
-.badge.todo { background: rgba(201, 154, 63, 0.16); color: var(--gold); }
-@media (prefers-color-scheme: dark) {
-  .badge.done { background: rgba(45, 212, 191, 0.16); }
-}
+.badge.done { background: rgba(91, 140, 255, 0.16); color: var(--emerald); }
+.badge.todo { background: rgba(231, 201, 118, 0.16); color: var(--gold); }
 
 .footnote { color: var(--ink-soft); font-size: 1rem; line-height: 1.6; margin-top: 0.5rem; }
 
@@ -200,7 +197,7 @@ body {
 
 .progress {
   height: 8px;
-  background: rgba(15, 118, 110, 0.15);
+  background: rgba(91, 140, 255, 0.15);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 1.6rem;
@@ -247,15 +244,15 @@ body {
 .concept-back {
   margin-top: 1.8rem;
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(90, 107, 104, 0.18);
+  border-top: 1px solid rgba(157, 177, 216, 0.22);
   width: 100%;
   animation: fade 0.3s ease both;
 }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 .example-word {
-  font-family: var(--arabic);
+  font-family: var(--font);
   font-size: clamp(1.8rem, 5vw, 2.8rem);
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--ink);
 }
 .example-explain { color: var(--ink-soft); font-size: 1.1rem; line-height: 1.55; margin-top: 0.9rem; }
@@ -285,7 +282,7 @@ body {
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 1.05rem 1.3rem;
-  font-family: var(--arabic), var(--font);
+  font-family: var(--font);
   font-size: 1.35rem;
   color: var(--ink);
   cursor: pointer;
@@ -295,14 +292,14 @@ body {
 .opt:active { transform: scale(0.99); }
 .opt:disabled { cursor: default; }
 .opt.correct {
-  border-color: var(--emerald);
-  background: rgba(15, 118, 110, 0.1);
-  color: var(--emerald);
+  border-color: var(--good);
+  background: rgba(86, 214, 176, 0.12);
+  color: var(--good);
   font-weight: 700;
 }
 .opt.wrong {
   border-color: var(--again);
-  background: rgba(176, 106, 79, 0.1);
+  background: rgba(230, 146, 122, 0.1);
   color: var(--again);
 }
 .feedback {
@@ -313,11 +310,8 @@ body {
   line-height: 1.5;
   animation: fade 0.3s ease both;
 }
-.feedback.ok { background: rgba(15, 118, 110, 0.1); color: var(--emerald-d); }
-.feedback.no { background: rgba(176, 106, 79, 0.1); color: var(--again); }
-@media (prefers-color-scheme: dark) {
-  .feedback.ok { color: var(--emerald); }
-}
+.feedback.ok { background: rgba(86, 214, 176, 0.12); color: var(--good); }
+.feedback.no { background: rgba(230, 146, 122, 0.12); color: var(--again); }
 
 /* ---- RÉSULTAT ------------------------------------------------------------ */
 

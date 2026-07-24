@@ -12,6 +12,27 @@
   const STORE_KEY = "arabe.progress.v2";
   const LESSONS = window.LESSONS || [];
 
+  // ---- rendu bidi : isole chaque passage arabe (RTL) pour que le français
+  //      et les parenthèses autour ne se réordonnent pas. Le texte peut
+  //      contenir des balises (<b>…</b>) — on n'enveloppe que l'arabe.
+  const AR = "\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF";
+  const AR_RUN = new RegExp("[" + AR + "](?:[" + AR + "\\s]*[" + AR + "])?", "g");
+  function bidi(s) {
+    return String(s).replace(AR_RUN, function (m) {
+      return '<bdi dir="rtl">' + m + "</bdi>";
+    });
+  }
+
+  // ---- mélange (Fisher–Yates) — pour ne pas toujours avoir la bonne réponse
+  //      au même endroit dans le quiz.
+  function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
   // ---- progression (simple, sans pression) ------------------------------
   function load() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
@@ -56,8 +77,8 @@
         '<button class="lesson-row" data-id="' + l.id + '">' +
           '<span class="lesson-num">' + l.n + "</span>" +
           '<span class="lesson-meta">' +
-            '<span class="lesson-title">' + l.title + "</span>" +
-            '<span class="lesson-sub">' + l.subtitle + "</span>" +
+            '<span class="lesson-title" dir="ltr">' + bidi(l.title) + "</span>" +
+            '<span class="lesson-sub" dir="ltr">' + bidi(l.subtitle) + "</span>" +
           "</span>" +
           badge +
         "</button>";
@@ -106,11 +127,11 @@
           (i + 1) + "/" + total + "</div>" +
         '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
         '<div class="card concept" id="card">' +
-          '<div class="concept-front">' + card.front + "</div>" +
+          '<div class="concept-front" dir="ltr">' + bidi(card.front) + "</div>" +
           '<div class="reveal-hint" id="hint">touche pour voir l\'exemple</div>' +
           '<div class="concept-back" id="back" hidden>' +
-            '<div class="example-word" dir="rtl">' + card.example + "</div>" +
-            '<div class="example-explain">' + card.explain + "</div>" +
+            '<div class="example-word" dir="ltr">' + bidi(card.example) + "</div>" +
+            '<div class="example-explain" dir="ltr">' + bidi(card.explain) + "</div>" +
           "</div>" +
         "</div>" +
         '<div class="nav-row">' +
@@ -152,9 +173,14 @@
     const total = lesson.quiz.length;
     const pct = Math.round((i / total) * 100);
 
+    // mélange les options (avec un repère de la bonne réponse)
+    const shuffled = shuffle(item.options.map(function (text, idx) {
+      return { text: text, correct: idx === item.answer };
+    }));
     let opts = "";
-    item.options.forEach(function (o, idx) {
-      opts += '<button class="opt" data-i="' + idx + '"><span dir="auto">' + o + "</span></button>";
+    shuffled.forEach(function (o) {
+      opts += '<button class="opt" data-correct="' + o.correct + '" dir="ltr">' +
+              bidi(o.text) + "</button>";
     });
 
     h(
@@ -163,7 +189,7 @@
         '<div class="phase-label">Leçon ' + lesson.n + " · Quiz · " +
           (i + 1) + "/" + total + "</div>" +
         '<div class="progress quiz"><span style="width:' + pct + '%"></span></div>' +
-        '<div class="question">' + item.q + "</div>" +
+        '<div class="question" dir="ltr">' + bidi(item.q) + "</div>" +
         '<div class="options">' + opts + "</div>" +
         '<div class="feedback" id="feedback" hidden></div>' +
         '<div class="nav-row center">' +
@@ -182,19 +208,18 @@
       btn.onclick = function () {
         if (answered) return;
         answered = true;
-        const chosen = parseInt(btn.getAttribute("data-i"), 10);
-        wasCorrect = chosen === item.answer;
+        wasCorrect = btn.getAttribute("data-correct") === "true";
 
-        Array.prototype.forEach.call(buttons, function (b, idx) {
+        Array.prototype.forEach.call(buttons, function (b) {
           b.disabled = true;
-          if (idx === item.answer) b.classList.add("correct");
-          else if (idx === chosen) b.classList.add("wrong");
+          if (b.getAttribute("data-correct") === "true") b.classList.add("correct");
+          else if (b === btn) b.classList.add("wrong");
         });
 
         const fb = document.getElementById("feedback");
         fb.hidden = false;
         fb.className = "feedback " + (wasCorrect ? "ok" : "no");
-        fb.innerHTML = (wasCorrect ? "✓ Bien vu ! " : "Pas tout à fait. ") + item.explain;
+        fb.innerHTML = (wasCorrect ? "✓ Bien vu ! " : "Pas tout à fait. ") + bidi(item.explain);
 
         document.getElementById("next").hidden = false;
       };
