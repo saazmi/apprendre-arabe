@@ -28,6 +28,42 @@
     return a;
   }
 
+  // ---- translittération des TERMES de grammaire -------------------------
+  //  Quand un terme arabe apparaît (اِسْم, حَرْف…), on ajoute sa prononciation
+  //  la première fois qu'il est vu dans une carte. Le glossaire est indexé
+  //  sur la forme « nue » (sans voyelles ni article الـ) pour tout attraper.
+  const TRANSLIT = {
+    "اسم": "ism", "فعل": "fiʿl", "حرف": "ḥarf", "نكرة": "nakira", "معرفة": "maʿrifa",
+    "تنوين": "tanwīn", "مبتدأ": "mubtadaʾ", "خبر": "khabar", "إضافة": "iḍāfa", "مضاف": "muḍāf",
+    "نعت": "naʿt", "مذكر": "mudhakkar", "مؤنث": "muʾannath", "مثنى": "muthannā", "جمع": "jamʿ",
+    "إعراب": "iʿrāb", "رفع": "rafʿ", "نصب": "naṣb", "جر": "jarr", "ضمير": "ḍamīr", "ضمائر": "ḍamāʾir",
+  };
+  const DIAC = /[ـً-ٰٕ]/g;                 // tatweel + harakat + hamza combinantes
+  function normAr(s) {
+    s = s.replace(DIAC, "");
+    if (s.length > 2 && s.charCodeAt(0) === 0x0627 && s.charCodeAt(1) === 0x0644) s = s.slice(2); // ال
+    return s;
+  }
+  const ANNOT_RE = new RegExp("([" + AR + "]+)(\\s*\\(([^)]*)\\))?", "g");
+  function annotate(text) {
+    const full = String(text);
+    const used = {};
+    return full.replace(ANNOT_RE, function (m, word, parenAll, glossInner, offset) {
+      const key = normAr(word);
+      const tr = TRANSLIT[key];
+      if (!tr || used[key]) return m;
+      const before = full.slice(0, offset);
+      const after = full.slice(offset + m.length);
+      if (/[؀-ۿ]\s*$/.test(before)) return m;              // mot arabe précédent → dans une phrase
+      const wrapped = before.slice(-1) === "(" && after.charAt(0) === ")";
+      if (!parenAll && !wrapped && /^\s*[؀-ۿ]/.test(after)) return m; // mot arabe suivant
+      used[key] = 1;
+      if (wrapped) return word + " — " + tr;                          // (مُضَاف) → (مُضَاف — muḍāf)
+      if (parenAll) return word + " (" + tr + ", " + glossInner + ")"; // اِسْم (nom) → اِسْم (ism, nom)
+      return word + " (" + tr + ")";                                  // الفِعْل → الفِعْل (fiʿl)
+    });
+  }
+
   // ---- progression -------------------------------------------------------
   function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (_) { return {}; } }
   function save(s) { localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
@@ -185,11 +221,11 @@
         '<div class="phase-label">Leçon ' + lesson.n + " · Apprentissage · " + (i + 1) + "/" + total + "</div>" +
         '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
         '<div class="card concept" id="card">' +
-          '<div class="concept-front" dir="ltr">' + bidi(card.front) + "</div>" +
+          '<div class="concept-front" dir="ltr">' + bidi(annotate(card.front)) + "</div>" +
           '<div class="reveal-hint" id="hint">touche pour voir l\'exemple</div>' +
           '<div class="concept-back" id="cardback" hidden>' +
-            '<div class="example-word" dir="ltr">' + bidi(card.example).replace(/\s*·\s*/g, "<br>") + "</div>" +
-            '<div class="example-explain" dir="ltr">' + bidi(card.explain) + "</div>" +
+            '<div class="example-word" dir="ltr">' + bidi(annotate(card.example)).replace(/\s*·\s*/g, "<br>") + "</div>" +
+            '<div class="example-explain" dir="ltr">' + bidi(annotate(card.explain)) + "</div>" +
           "</div>" +
         "</div>" +
         '<div class="nav-row">' +
