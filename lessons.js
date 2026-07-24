@@ -1,21 +1,14 @@
 /* =========================================================================
-   LEÇONS — le contenu.
-   Chaque leçon : on APPREND (cartes concept) puis on VÉRIFIE (quiz).
+   LEÇONS DE GRAMMAIRE — contenu d'apprentissage (les cartes « concept »).
+   Les QUIZ ne sont plus écrits ici : ils sont générés dynamiquement à partir
+   de gabarits + données aléatoires (voir quiz.js). Chaque leçon est reliée à
+   ses gabarits par son id (g1…g4).
 
    Une carte concept :
      { front, example, explain }
-       front   → l'idée / la règle (recto)
-       example → l'exemple (souvent coranique) révélé au verso
-       explain → l'explication courte au verso
-
-   Une question de quiz :
-     { q, options:[...], answer: <index correct>, explain }
-
-   Pour ajouter une leçon : copier un bloc { ... } et remplir.
    ========================================================================= */
 
 window.LESSONS = [
-  /* ---------------------------------------------------------------------- */
   {
     id: "g1",
     n: 1,
@@ -29,7 +22,7 @@ window.LESSONS = [
       },
       {
         front: "<b>الاِسْم</b> — le nom. Une personne, un objet, un lieu, une qualité.",
-        example: "كِتَاب · رَجُل · اللَّه",
+        example: "كِتَاب (livre) · رَجُل (homme) · اللَّه (Dieu)",
         explain: "Le nom se décline : sa terminaison change selon sa fonction dans la phrase.",
       },
       {
@@ -44,7 +37,7 @@ window.LESSONS = [
       },
       {
         front: "Un nom est soit <b>indéfini</b> (نَكِرَة), soit <b>défini</b> (مَعْرِفَة).",
-        example: "كِتَابٌ = un livre · الْكِتَابُ = le livre",
+        example: "كِتَابٌ (un livre) · الْكِتَابُ (le livre)",
         explain: "Exactement comme « un / une » face à « le / la » en français.",
       },
       {
@@ -54,72 +47,27 @@ window.LESSONS = [
       },
       {
         front: "<b>الـ</b> (al-) — la marque du défini. Dès qu'on l'ajoute, le tanwin disparaît.",
-        example: "كِتَابٌ  →  الْكِتَابُ  (un livre → le livre)",
+        example: "كِتَابٌ ← الْكِتَابُ (un livre → le livre)",
         explain: "Un mot ne peut pas être indéfini ET défini en même temps.",
       },
       {
         front: "Le ل de الـ se prononce… ou pas. C'est la règle <b>solaire / lunaire</b>.",
-        example: "الْقَمَر → al-qamar (lunaire) · الشَّمْس → ash-shams (solaire)",
+        example: "الْقَمَر ← al-qamar (lunaire) · الشَّمْس ← ash-shams (solaire)",
         explain: "Astuce : قمر (lune) = lunaire, ل prononcé ; شمس (soleil) = solaire, ل muet.",
       },
       {
-        front: "La <b>chadda</b> (ّ) — elle <b>double</b> une consonne.",
+        front: "La <b>chadda</b> (le signe ـّ) <b>double</b> une consonne.",
         example: "بّ = « bb » · الشَّمْس (ash-shams)",
         explain: "Avec الـ + lettre solaire, le ل est absorbé : sa trace est la chadda sur la lettre suivante.",
       },
       {
         front: "La chadda peut aussi <b>changer le sens</b> d'un mot, en doublant une lettre de la racine.",
-        example: "بَاب (porte) → بَوَّاب (portier) · عَلِمَ (il a su) → عَلَّمَ (il a enseigné)",
+        example: "بَاب (porte) ← بَوَّاب (portier) · عَلِمَ (il a su) ← عَلَّمَ (il a enseigné)",
         explain: "Doubler une lettre crée souvent un sens lié : « celui de la porte », « faire savoir = enseigner ».",
-      },
-    ],
-    quiz: [
-      {
-        q: "Dans quel type se classe قَالَ (il a dit) ?",
-        options: ["فِعْل — verbe", "اِسْم — nom", "حَرْف — particule"],
-        answer: 0,
-        explain: "Une action → un verbe.",
-      },
-      {
-        q: "كِتَابٌ (avec tanwin) est…",
-        options: ["indéfini", "défini"],
-        answer: 0,
-        explain: "Le tanwin est la marque de l'indéfini (نَكِرَة).",
-      },
-      {
-        q: "Quelle est la marque du défini ?",
-        options: ["الـ", "le tanwin", "la chadda"],
-        answer: 0,
-        explain: "الـ définit le mot — et le tanwin disparaît alors.",
-      },
-      {
-        q: "فِي (dans) est…",
-        options: ["حَرْف — particule", "فِعْل — verbe", "اِسْم — nom"],
-        answer: 0,
-        explain: "Une préposition invariable → une particule.",
-      },
-      {
-        q: "Dans الشَّمْس, prononce-t-on le ل de الـ ?",
-        options: ["Non — lettre solaire", "Oui — lettre lunaire"],
-        answer: 0,
-        explain: "ش est solaire : le ل est muet, doublé par la chadda.",
-      },
-      {
-        q: "Que devient كِتَابٌ avec الـ ?",
-        options: ["الْكِتَابُ", "كِتَابًا", "كِتَابٍ"],
-        answer: 0,
-        explain: "الـ + perte du tanwin → الْكِتَابُ (le livre).",
-      },
-      {
-        q: "Dans الشَّمْس, la chadda sur le ش indique que…",
-        options: ["le ل de الـ est absorbé (muet)", "le ش est emphatique"],
-        answer: 0,
-        explain: "Lettre solaire : le ل ne se prononce pas, sa trace est la chadda.",
       },
     ],
   },
 
-  /* ---------------------------------------------------------------------- */
   {
     id: "g2",
     n: 2,
@@ -133,7 +81,7 @@ window.LESSONS = [
       },
       {
         front: "Elle a deux parties : <b>المُبْتَدَأ</b> (le sujet) + <b>الخَبَر</b> (ce qu'on en dit).",
-        example: "هٰذَا كِتَابٌ  →  مبتدأ: هٰذَا · خبر: كِتَابٌ",
+        example: "هٰذَا كِتَابٌ ← مبتدأ: هٰذَا · خبر: كِتَابٌ",
         explain: "Le sujet est souvent défini ; le خبر souvent indéfini (tanwin).",
       },
       {
@@ -158,7 +106,7 @@ window.LESSONS = [
       },
       {
         front: "Règle d'or : le 1er mot d'une إضافة (le مُضَاف) ne prend <b>JAMAIS الـ ni tanwin</b>.",
-        example: "كِتَابُ الطَّالِبِ ✓   ·   الْكِتَابُ الطَّالِبِ ✗   ·   كِتَابٌ الطَّالِبِ ✗",
+        example: "كِتَابُ الطَّالِبِ ✓ · الْكِتَابُ الطَّالِبِ ✗",
         explain: "Le 2e mot, lui, est toujours au génitif (kasra).",
       },
       {
@@ -167,53 +115,8 @@ window.LESSONS = [
         explain: "Et même une chaîne : مَالِكِ يَوْمِ الدِّينِ (Maître du Jour de la rétribution).",
       },
     ],
-    quiz: [
-      {
-        q: "En arabe, « ceci est un livre » a-t-il besoin du verbe « être » ?",
-        options: ["Non", "Oui"],
-        answer: 0,
-        explain: "La phrase nominale accole les deux mots : هٰذَا كِتَابٌ.",
-      },
-      {
-        q: "Dans هٰذَا كِتَابٌ, quel est le مُبْتَدَأ (sujet) ?",
-        options: ["هٰذَا", "كِتَابٌ"],
-        answer: 0,
-        explain: "هٰذَا = ce dont on parle.",
-      },
-      {
-        q: "Pour un mot féminin comme شَجَرَة, on dit :",
-        options: ["هٰذِهِ", "هٰذَا"],
-        answer: 0,
-        explain: "La terminaison ة marque le féminin → هٰذِهِ.",
-      },
-      {
-        q: "« le livre de l'étudiant » se dit :",
-        options: ["كِتَابُ الطَّالِبِ", "الْكِتَابُ الطَّالِبِ", "كِتَابٌ الطَّالِبِ"],
-        answer: 0,
-        explain: "Le مُضَاف n'a ni الـ ni tanwin.",
-      },
-      {
-        q: "Dans une إضافة, le 1er mot peut-il porter الـ ?",
-        options: ["Non, jamais", "Oui"],
-        answer: 0,
-        explain: "Le مُضَاف reste sans الـ, même quand l'ensemble est défini.",
-      },
-      {
-        q: "مَنْ sert à demander…",
-        options: ["qui (personnes)", "quoi (choses)"],
-        answer: 0,
-        explain: "مَنْ = qui ; مَا = qu'est-ce que.",
-      },
-      {
-        q: "بِسْمِ اللَّهِ est un exemple de…",
-        options: ["إضافة (annexion)", "phrase nominale", "particule"],
-        answer: 0,
-        explain: "Deux noms accolés (اسم + الله) = une annexion.",
-      },
-    ],
   },
 
-  /* ---------------------------------------------------------------------- */
   {
     id: "g3",
     n: 3,
@@ -237,17 +140,17 @@ window.LESSONS = [
       },
       {
         front: "Le <b>duel</b> (المُثَنَّى) — « deux X ». On ajoute une terminaison au singulier.",
-        example: "كِتَاب → كِتَابَان (sujet) / كِتَابَيْن (autres cas)",
-        explain: "Le ة du féminin devient ت : مَدْرَسَة → مَدْرَسَتَان.",
+        example: "كِتَاب ← كِتَابَان (sujet) / كِتَابَيْن (autres cas)",
+        explain: "Le ة du féminin devient ت : مَدْرَسَة ← مَدْرَسَتَان.",
       },
       {
         front: "Pluriels <b>réguliers (sains)</b> : masculin + ون/ين · féminin (–ة) + ات.",
-        example: "مُسْلِم → مُسْلِمُون · مُسْلِمَة → مُسْلِمَات",
+        example: "مُسْلِم ← مُسْلِمُون · مُسْلِمَة ← مُسْلِمَات",
         explain: "Le masculin varie selon le cas (ـُون sujet / ـِين sinon) ; le féminin ajoute ات.",
       },
       {
         front: "Le <b>pluriel brisé</b> (جمع التكسير) : le mot change de l'intérieur.",
-        example: "كِتَاب → كُتُب · رَجُل → رِجَال",
+        example: "كِتَاب ← كُتُب · رَجُل ← رِجَال",
         explain: "Pas de règle — à mémoriser. Il se décline comme un singulier (damma/fatha/kasra).",
       },
       {
@@ -261,25 +164,8 @@ window.LESSONS = [
         explain: "ـُ rafʿ · ـَ naṣb · ـِ jarr. Trois fonctions, trois voyelles.",
       },
     ],
-    quiz: [
-      { q: "مَدْرَسَة est…", options: ["féminin", "masculin"], answer: 0,
-        explain: "La ة est le marqueur du féminin le plus courant." },
-      { q: "شَمْس (soleil) est…", options: ["féminin (sans marqueur)", "masculin"], answer: 0,
-        explain: "Féminin « caché », à mémoriser — fréquent dans le Coran." },
-      { q: "Le duel de كِتَاب au cas sujet est…", options: ["كِتَابَان", "كِتَابَيْن", "كُتُب"], answer: 0,
-        explain: "ـَان au cas sujet (rafʿ) ; ـَيْن dans les autres cas." },
-      { q: "Le pluriel de مُسْلِمَة est…", options: ["مُسْلِمَات", "مُسْلِمُون", "مَسَاجِد"], answer: 0,
-        explain: "Féminin régulier : on retire ة, on ajoute ات." },
-      { q: "كُتُب (pluriel de كِتَاب) est un pluriel…", options: ["brisé", "masculin sain", "féminin sain"], answer: 0,
-        explain: "Le mot change de l'intérieur → pluriel brisé." },
-      { q: "Dans بِسْمِ اللَّهِ, le mot اللَّهِ est au cas…", options: ["جَرّ (i)", "رَفْع (u)", "نَصْب (a)"], answer: 0,
-        explain: "2e terme d'une إضافة → génitif (kasra)." },
-      { q: "L'i'rāb indique surtout…", options: ["la fonction du mot", "comment le prononcer"], answer: 0,
-        explain: "Le signe final dit le rôle du mot dans la phrase." },
-    ],
   },
 
-  /* ---------------------------------------------------------------------- */
   {
     id: "g4",
     n: 4,
@@ -293,7 +179,7 @@ window.LESSONS = [
       },
       {
         front: "Les <b>pronoms suffixes</b> (المُتَّصِلَة) — « mon, ton, son » — s'attachent au nom.",
-        example: "كِتَاب + ي → كِتَابِي (mon livre)",
+        example: "كِتَاب + ي ← كِتَابِي (mon livre)",
         explain: "كَ = ton (m.) · كِ = ton (f.) · هُ = son · هَا = sa · نَا = notre. Le nom perd son tanwin.",
       },
       {
@@ -313,7 +199,7 @@ window.LESSONS = [
       },
       {
         front: "Piège : un pluriel de <b>choses</b> (non-humain) s'accorde comme un <b>féminin singulier</b>.",
-        example: "كُتُبٌ جَدِيدَةٌ ✓   (et non كُتُبٌ جَدِيدُونَ ✗)",
+        example: "كُتُبٌ جَدِيدَةٌ ✓ (et non كُتُبٌ جَدِيدُونَ ✗)",
         explain: "Ex. coranique : آيَاتٌ بَيِّنَاتٌ (des versets clairs).",
       },
       {
@@ -321,22 +207,6 @@ window.LESSONS = [
         example: "الصِّرَاطَ المُسْتَقِيمَ (le droit chemin) · الرَّحْمَٰنِ الرَّحِيمِ",
         explain: "Nom et adjectif : même genre, nombre, définition ET cas — accord 4/4.",
       },
-    ],
-    quiz: [
-      { q: "« mon livre » se dit…", options: ["كِتَابِي", "كِتَابُكَ", "كِتَابُهُ"], answer: 0,
-        explain: "Le suffixe ـِي = « mon »." },
-      { q: "Le suffixe كُمْ signifie…", options: ["votre (vous, m.)", "son", "notre"], answer: 0,
-        explain: "رَبُّكُمْ = votre Seigneur." },
-      { q: "En arabe, l'adjectif se place…", options: ["après le nom", "avant le nom"], answer: 0,
-        explain: "Le نعت suit toujours le nom qu'il qualifie." },
-      { q: "Sur combien de points l'adjectif s'accorde-t-il ?", options: ["4", "1", "2"], answer: 0,
-        explain: "Genre, nombre, définition et cas." },
-      { q: "« le livre neuf » se dit…", options: ["الكِتَابُ الجَدِيدُ", "الكِتَابُ جَدِيدٌ", "كِتَابُ الجَدِيدُ"], answer: 0,
-        explain: "Le nom porte الـ → l'adjectif aussi." },
-      { q: "Un pluriel de choses (كُتُب) prend un adjectif…", options: ["féminin singulier", "masculin pluriel"], answer: 0,
-        explain: "Règle du non-humain : كُتُبٌ جَدِيدَةٌ." },
-      { q: "Dans الرَّحْمَٰنِ الرَّحِيمِ, les deux mots s'accordent en…", options: ["genre, nombre, définition et cas", "genre seulement"], answer: 0,
-        explain: "Accord 4/4 — le نعت parfait." },
     ],
   },
 ];

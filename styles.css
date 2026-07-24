@@ -51,23 +51,150 @@ body {
 /* l'arabe dans les passages isolés utilise la police arabe */
 bdi { font-family: var(--arabic); font-style: normal; }
 
-#app {
-  min-height: 100dvh;
+#app { min-height: 100dvh; }
+
+/* ---- COQUILLE : rail de navigation + zone principale --------------------- */
+
+.shell { display: flex; min-height: 100dvh; }
+
+.rail {
+  flex: 0 0 auto;
+  width: clamp(150px, 17vw, 210px);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100dvh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: max(2vh, env(safe-area-inset-top)) max(3vw, env(safe-area-inset-right))
-           max(2vh, env(safe-area-inset-bottom)) max(3vw, env(safe-area-inset-left));
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: max(1.6rem, env(safe-area-inset-top)) 1rem 1.6rem
+           max(1rem, env(safe-area-inset-left));
+  background: rgba(5, 13, 34, 0.55);
+  border-right: 1px solid rgba(157, 177, 216, 0.12);
+  backdrop-filter: blur(6px);
+}
+.brand { text-align: center; padding-top: 0.4rem; }
+.brand .bismillah { font-family: var(--arabic); color: var(--gold); font-size: 1.3rem; opacity: 0.9; }
+.brand-t { font-weight: 800; font-size: 1.15rem; line-height: 1.15; margin-top: 0.4rem; color: var(--ink); }
+.nav-items { display: flex; flex-direction: column; gap: 0.4rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--ink-soft); font-family: var(--font); font-size: 1.05rem; font-weight: 600;
+  padding: 0.75rem 0.9rem; border-radius: 14px; text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav-item:hover { color: var(--ink); }
+.nav-item.active { background: rgba(91, 140, 255, 0.16); color: var(--emerald); }
+.nav-ic { font-family: var(--arabic); font-size: 1.25rem; width: 1.4em; text-align: center; }
+
+.main {
+  flex: 1; min-width: 0;
+  display: flex; justify-content: center;
+  padding: clamp(1.6rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem)
+           max(2rem, env(safe-area-inset-bottom));
+}
+.main .screen { width: 100%; max-width: 720px; }
+
+.focus-wrap {
+  min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  padding: max(4.5vh, env(safe-area-inset-top)) max(3vw, env(safe-area-inset-right))
+           max(3vh, env(safe-area-inset-bottom)) max(3vw, env(safe-area-inset-left));
+}
+.focus-wrap .study, .focus-wrap .celebrate { width: 100%; max-width: 820px; }
+
+/* rail → barre en bas sur écran étroit (portrait / téléphone) */
+@media (max-width: 720px) {
+  .shell { flex-direction: column; }
+  .rail {
+    position: fixed; bottom: 0; top: auto; left: 0; right: 0;
+    width: auto; height: auto; flex-direction: row; gap: 0.3rem;
+    padding: 0.4rem; border-right: none; border-top: 1px solid rgba(157, 177, 216, 0.14);
+    z-index: 20;
+  }
+  .brand { display: none; }
+  .nav-items { flex-direction: row; flex: 1; justify-content: space-around; }
+  .nav-item { flex-direction: column; gap: 0.15rem; font-size: 0.8rem; padding: 0.4rem; }
+  .main { padding-bottom: 5.5rem; }
 }
 
 /* ---- éléments communs ---------------------------------------------------- */
 
 .screen {
   width: 100%;
-  max-width: 760px;
   animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ---- ACCUEIL (tuiles) + sections ---------------------------------------- */
+
+.section-head { margin-bottom: 1.6rem; }
+.section-head h1, .home h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.01em; }
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin: 2rem 0 1.5rem; }
+@media (max-width: 560px) { .tiles { grid-template-columns: 1fr; } }
+.tile {
+  background: var(--surface); border: 1px solid rgba(157, 177, 216, 0.1);
+  border-radius: 22px; box-shadow: var(--shadow); cursor: pointer;
+  padding: clamp(1.4rem, 4vw, 2rem); text-align: center; color: var(--ink);
+  font-family: var(--font); transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.tile:active { transform: scale(0.98); }
+.tile-ic { font-family: var(--arabic); color: var(--emerald); font-size: clamp(2rem, 6vw, 2.8rem); line-height: 1.2; }
+.tile-t { font-size: 1.3rem; font-weight: 750; margin-top: 0.5rem; }
+.tile-s { color: var(--ink-soft); font-size: 0.95rem; margin-top: 0.3rem; }
+
+.wide { display: block; width: 100%; margin-bottom: 1.4rem; }
+.back-inline { margin-bottom: 1rem; padding-left: 0; }
+
+/* ---- listes (leçons / jeux de mots) ------------------------------------- */
+
+.list { display: flex; flex-direction: column; gap: 0.9rem; }
+.list-row {
+  display: flex; align-items: center; gap: 1.1rem; width: 100%;
+  background: var(--surface); border: 1px solid rgba(157, 177, 216, 0.1);
+  border-radius: 18px; box-shadow: var(--shadow); cursor: pointer;
+  padding: 1rem 1.2rem; text-align: left; font-family: var(--font);
+  transition: transform 0.12s ease;
+}
+.list-row:active { transform: scale(0.985); }
+.list-num, .list-ic {
+  flex: 0 0 auto; width: 2.7rem; height: 2.7rem; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.15rem;
+  background: linear-gradient(135deg, var(--emerald), var(--emerald-d));
+}
+.list-ic { font-family: var(--arabic); font-size: 0.9rem; }
+.list-meta { flex: 1; min-width: 0; }
+.list-title { display: block; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.list-sub { display: block; color: var(--ink-soft); font-size: 0.92rem; margin-top: 0.1rem; }
+
+/* ---- détail (leçon / jeu) ----------------------------------------------- */
+
+.lesson-detail { text-align: center; padding-top: 0.5rem; }
+.ld-num, .ld-ic {
+  width: 3.4rem; height: 3.4rem; margin: 0 auto 1rem; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--emerald), var(--emerald-d));
+}
+.ld-ic { font-family: var(--arabic); font-size: 1rem; }
+.lesson-detail h1 { font-size: clamp(1.5rem, 4.5vw, 2.1rem); font-weight: 800; }
+.best-line { color: var(--ink-soft); margin-top: 0.8rem; }
+.best-line b { color: var(--gold); }
+.detail-actions { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; margin-top: 2rem; }
+.detail-actions .btn { min-width: min(320px, 90%); }
+.btn-soft {
+  background: rgba(91, 140, 255, 0.14); color: var(--emerald);
+  font-size: 1.15rem; box-shadow: none;
+}
+
+/* ---- carte de vocabulaire ----------------------------------------------- */
+
+.vcard { min-height: min(46vh, 380px); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 2rem; cursor: pointer; text-align: center; }
+.vcard-ar { font-family: var(--arabic); font-size: clamp(3.5rem, 14vh, 6rem); color: var(--ink); line-height: 1.3; }
+.vcard-fr { font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--emerald); margin-top: 1.4rem;
+  padding-top: 1.4rem; border-top: 1px solid rgba(157, 177, 216, 0.2); animation: fade 0.3s ease both; }
 
 .btn {
   font-family: var(--font);
