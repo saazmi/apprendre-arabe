@@ -79,12 +79,9 @@
     document.getElementById("back").onclick = onBack;
   }
 
-  function go(view, param) {
-    if (view === "home") return screenHome();
+  function go(view) {
     if (view === "grammar") return screenGrammar();
     if (view === "vocab") return screenVocab();
-    if (view === "lesson") return screenLesson(param);
-    if (view === "deck") return screenDeck(param);
     return screenHome();
   }
 
@@ -131,17 +128,19 @@
     let rows = "";
     LESSONS.forEach(function (l) {
       const b = best("g:" + l.id);
-      const badge = b ? '<span class="badge done">✓ ' + b.best + "/" + b.total + "</span>"
-                      : '<span class="badge todo">À découvrir</span>';
-      rows += '<button class="list-row" data-lesson="' + l.id + '">' +
-                '<span class="list-num">' + l.n + "</span>" +
-                '<span class="list-meta"><span class="list-title" dir="ltr">' + bidi(l.title) + "</span>" +
-                  '<span class="list-sub" dir="ltr">' + bidi(l.subtitle) + "</span></span>" +
-                badge + "</button>";
+      const score = b ? '<span class="rq-score">✓ ' + b.best + "/" + b.total + "</span>" : "";
+      rows += '<div class="list-row">' +
+                '<button class="row-main" data-lesson="' + l.id + '">' +
+                  '<span class="list-num">' + l.n + "</span>" +
+                  '<span class="list-meta"><span class="list-title" dir="ltr">' + bidi(l.title) + "</span>" +
+                    '<span class="list-sub" dir="ltr">' + bidi(l.subtitle) + "</span></span>" +
+                "</button>" +
+                '<button class="row-quiz" data-quiz="' + l.id + '"><span class="rq-label">Quiz</span>' + score + "</button>" +
+              "</div>";
     });
     shell("grammar",
       '<div class="section-head"><h1>Grammaire</h1>' +
-        '<p class="greeting">Apprends une leçon, puis révise avec un quiz.</p></div>' +
+        '<p class="greeting">Touche une leçon pour apprendre · le bouton <b>Quiz</b> pour réviser.</p></div>' +
       '<button class="btn btn-primary wide" id="revall">Quiz de révision · toute la grammaire</button>' +
       '<div class="list">' + rows + "</div>"
     );
@@ -152,39 +151,25 @@
         onExit: screenGrammar,
       });
     };
-    Array.prototype.forEach.call(document.querySelectorAll(".list-row"), function (b) {
-      b.onclick = function () { go("lesson", b.getAttribute("data-lesson")); };
+    Array.prototype.forEach.call(document.querySelectorAll(".row-main"), function (b) {
+      b.onclick = function () {
+        const l = LESSONS.filter(x => x.id === b.getAttribute("data-lesson"))[0];
+        if (l) teach(l, 0);
+      };
     });
-  }
-
-  // ---- détail d'une leçon ------------------------------------------------
-  function screenLesson(id) {
-    const lesson = LESSONS.filter(l => l.id === id)[0];
-    if (!lesson) return screenGrammar();
-    const b = best("g:" + lesson.id);
-    shell("grammar",
-      '<button class="btn btn-ghost back-inline" id="tolist">‹ Toutes les leçons</button>' +
-      '<div class="lesson-detail">' +
-        '<div class="ld-num">' + lesson.n + "</div>" +
-        '<h1 dir="ltr">' + bidi(lesson.title) + "</h1>" +
-        '<p class="greeting" dir="ltr">' + bidi(lesson.subtitle) + "</p>" +
-        (b ? '<p class="best-line">Meilleur score : <b>' + b.best + "/" + b.total + "</b></p>" : "") +
-        '<div class="detail-actions">' +
-          '<button class="btn btn-primary" id="learn">Apprendre la leçon (' + lesson.cards.length + " cartes)</button>" +
-          '<button class="btn btn-soft" id="quiz">Quiz de révision (10 questions)</button>' +
-        "</div>" +
-      "</div>"
-    );
-    document.getElementById("tolist").onclick = screenGrammar;
-    document.getElementById("learn").onclick = function () { teach(lesson, 0); };
-    document.getElementById("quiz").onclick = function () { startLessonQuiz(lesson); };
+    Array.prototype.forEach.call(document.querySelectorAll(".row-quiz"), function (b) {
+      b.onclick = function () {
+        const l = LESSONS.filter(x => x.id === b.getAttribute("data-quiz"))[0];
+        if (l) startLessonQuiz(l);
+      };
+    });
   }
 
   function startLessonQuiz(lesson) {
     runQuiz({
       label: "Leçon " + lesson.n, saveKey: "g:" + lesson.id,
       generate: function () { return window.QUIZ.buildLessonQuiz(lesson.id, 10); },
-      onExit: function () { screenLesson(lesson.id); },
+      onExit: screenGrammar,
     });
   }
 
@@ -212,7 +197,7 @@
           '<button class="btn btn-primary" id="next" hidden>' + (last ? "Passer au quiz →" : "Suivant →") + "</button>" +
         "</div>" +
       "</div>",
-      "Leçon " + lesson.n, function () { screenLesson(lesson.id); }
+      "Grammaire", screenGrammar
     );
 
     let revealed = false;
@@ -236,50 +221,37 @@
     let rows = "";
     VOCAB.forEach(function (d) {
       const b = best("v:" + d.id);
-      const badge = b ? '<span class="badge done">✓ ' + b.best + "/" + b.total + "</span>"
-                      : '<span class="badge todo">' + d.words.length + " mots</span>";
-      rows += '<button class="list-row" data-deck="' + d.id + '">' +
-                '<span class="list-ic" dir="rtl">كَلِمَات</span>' +
-                '<span class="list-meta"><span class="list-title">' + d.title + "</span>" +
-                  '<span class="list-sub">' + d.subtitle + "</span></span>" +
-                badge + "</button>";
+      const score = b ? '<span class="rq-score">✓ ' + b.best + "/" + b.total + "</span>" : "";
+      rows += '<div class="list-row">' +
+                '<button class="row-main" data-deck="' + d.id + '">' +
+                  '<span class="list-ic" dir="rtl">كَلِمَات</span>' +
+                  '<span class="list-meta"><span class="list-title">' + d.title + "</span>" +
+                    '<span class="list-sub">' + d.subtitle + " · " + d.words.length + " mots</span></span>" +
+                "</button>" +
+                '<button class="row-quiz" data-quiz="' + d.id + '"><span class="rq-label">Quiz</span>' + score + "</button>" +
+              "</div>";
     });
     shell("vocab",
       '<div class="section-head"><h1>Vocabulaire</h1>' +
-        '<p class="greeting">Parcours les cartes, puis teste-toi.</p></div>' +
+        '<p class="greeting">Touche un jeu pour parcourir les cartes · le bouton <b>Quiz</b> pour te tester.</p></div>' +
       '<div class="list">' + rows + "</div>"
     );
-    Array.prototype.forEach.call(document.querySelectorAll(".list-row"), function (b) {
-      b.onclick = function () { go("deck", b.getAttribute("data-deck")); };
+    Array.prototype.forEach.call(document.querySelectorAll(".row-main"), function (b) {
+      b.onclick = function () {
+        const d = VOCAB.filter(x => x.id === b.getAttribute("data-deck"))[0];
+        if (d) browse(d, 0);
+      };
     });
-  }
-
-  function screenDeck(id) {
-    const deck = VOCAB.filter(d => d.id === id)[0];
-    if (!deck) return screenVocab();
-    const b = best("v:" + deck.id);
-    shell("vocab",
-      '<button class="btn btn-ghost back-inline" id="tolist">‹ Tous les jeux</button>' +
-      '<div class="lesson-detail">' +
-        '<div class="ld-ic" dir="rtl">كَلِمَات</div>' +
-        "<h1>" + deck.title + "</h1>" +
-        '<p class="greeting">' + deck.subtitle + " · " + deck.words.length + " mots</p>" +
-        (b ? '<p class="best-line">Meilleur score : <b>' + b.best + "/" + b.total + "</b></p>" : "") +
-        '<div class="detail-actions">' +
-          '<button class="btn btn-primary" id="browse">Parcourir les cartes</button>' +
-          '<button class="btn btn-soft" id="quiz">Quiz (10 questions)</button>' +
-        "</div>" +
-      "</div>"
-    );
-    document.getElementById("tolist").onclick = screenVocab;
-    document.getElementById("browse").onclick = function () { browse(deck, 0); };
-    document.getElementById("quiz").onclick = function () {
-      runQuiz({
-        label: deck.title, saveKey: "v:" + deck.id,
-        generate: function () { return window.QUIZ.buildVocabQuiz(deck.id, 10); },
-        onExit: function () { screenDeck(deck.id); },
-      });
-    };
+    Array.prototype.forEach.call(document.querySelectorAll(".row-quiz"), function (b) {
+      b.onclick = function () {
+        const d = VOCAB.filter(x => x.id === b.getAttribute("data-quiz"))[0];
+        if (d) runQuiz({
+          label: d.title, saveKey: "v:" + d.id,
+          generate: function () { return window.QUIZ.buildVocabQuiz(d.id, 10); },
+          onExit: screenVocab,
+        });
+      };
+    });
   }
 
   // ---- parcourir les cartes de vocabulaire -------------------------------
@@ -303,7 +275,7 @@
           '<button class="btn btn-primary" id="next">' + (last ? "Terminer" : "Suivant →") + "</button>" +
         "</div>" +
       "</div>",
-      deck.title, function () { screenDeck(deck.id); }
+      "Vocabulaire", screenVocab
     );
 
     let revealed = false;
@@ -315,7 +287,7 @@
     document.getElementById("card").onclick = reveal;
     if (i > 0) document.getElementById("prev").onclick = function () { browse(deck, i - 1); };
     document.getElementById("next").onclick = function () {
-      if (last) screenDeck(deck.id); else browse(deck, i + 1);
+      if (last) screenVocab(); else browse(deck, i + 1);
     };
   }
 
