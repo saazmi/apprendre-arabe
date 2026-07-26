@@ -86,7 +86,7 @@
     { id: "home", label: "Accueil", icon: "☾" },
     { id: "grammar", label: "Grammaire", icon: "ن" },
     { id: "vocab", label: "Vocabulaire", icon: "ك" },
-    { id: "stories", label: "Prophètes", icon: "ﷺ" },
+    { id: "stories", label: "Récits", icon: "ق" },
   ];
 
   function shell(active, mainHTML) {
@@ -151,9 +151,9 @@
             '<div class="tile-s">' + VOCAB.length + " jeux de mots · cartes & quiz</div>" +
           "</button>" +
           '<button class="tile" data-go="stories">' +
-            '<div class="tile-ic" dir="rtl">أَنْبِيَاء</div>' +
-            '<div class="tile-t">Prophètes</div>' +
-            '<div class="tile-s">' + STORIES.length + " histoire" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
+            '<div class="tile-ic" dir="rtl">قَصَص</div>' +
+            '<div class="tile-t">Récits du Coran</div>' +
+            '<div class="tile-s">' + STORIES.length + " récit" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
           "</button>" +
         "</div>" +
         '<p class="footnote">Grammaire : ' + gDone + "/" + LESSONS.length +
@@ -369,7 +369,7 @@
                 "</span></button></div>";
     });
     shell("stories",
-      '<div class="section-head"><h1>Histoire des prophètes</h1>' +
+      '<div class="section-head"><h1>Les récits du Coran</h1>' +
         '<p class="greeting">Lis l\'histoire en arabe. Le français est sous chaque ligne ; ' +
         "touche une référence pour lire et écouter le verset.</p></div>" +
       '<div class="list">' + rows + "</div>"
