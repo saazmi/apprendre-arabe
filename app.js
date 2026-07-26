@@ -416,6 +416,34 @@
         "</div>";
     });
 
+    // bouton d'analyse grammaticale (leçons 1–4) sur les phrases-exemples
+    if (card.analysis) {
+      const a = card.analysis;
+      const TYPE = {
+        nom: "اسم · nom", verbe: "فعل · verbe", particule: "حرف · particule", pronom: "ضمير · pronom",
+      };
+      let wordsHtml = "";
+      a.words.forEach(function (wd) {
+        wordsHtml +=
+          '<div class="aw">' +
+            '<span class="aw-word" dir="rtl">' + wd.w + "</span>" +
+            '<span class="aw-body">' +
+              '<span class="aw-type t-' + wd.type + '" dir="rtl">' + (TYPE[wd.type] || wd.type) + "</span>" +
+              '<span class="aw-role" dir="ltr">' + wd.role + "</span>" +
+            "</span>" +
+          "</div>";
+      });
+      refsHtml +=
+        '<div class="verse-block">' +
+          '<button class="analyse-btn" data-an="1">⚙ Analyser la structure de la phrase</button>' +
+          '<div class="analyse-panel" id="analyse" hidden>' +
+            '<div class="analyse-phrase" dir="rtl">' + a.phrase + "</div>" +
+            '<div class="analyse-words">' + wordsHtml + "</div>" +
+            '<div class="analyse-take">' + a.takeaway + "</div>" +
+          "</div>" +
+        "</div>";
+    }
+
     focus(
       '<div class="study story">' +
         '<div class="phase-label">' + story.titleFr + " · " + (i + 1) + "/" + total + "</div>" +
@@ -445,6 +473,12 @@
     Array.prototype.forEach.call(document.querySelectorAll(".btn-listen"), function (b) {
       b.onclick = function () { playAudio(b.getAttribute("data-audio"), b); };
     });
+    const anBtn = document.querySelector(".analyse-btn");
+    if (anBtn) anBtn.onclick = function () {
+      const p = document.getElementById("analyse");
+      p.hidden = !p.hidden;
+      anBtn.classList.toggle("open", !p.hidden);
+    };
   }
 
   // =========================================================================
