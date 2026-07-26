@@ -14,7 +14,7 @@ window.STORIES = [
   {
     id: "isa",
     n: 1,
-    title: "عِيسَى ﷺ",
+    title: "عِيسَى عَلَيْهِ السَّلَام",
     titleFr: "Le prophète ʿĪsā (Jésus)",
     subtitle: "De l'annonce à Marie jusqu'à l'élévation au ciel",
     cards: [

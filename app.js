@@ -362,7 +362,7 @@
     let rows = "";
     STORIES.forEach(function (s) {
       rows += '<div class="list-row"><button class="row-main" data-story="' + s.id + '">' +
-                '<span class="list-ic" dir="rtl">ﷺ</span>' +
+                '<span class="list-ic" dir="rtl">ق</span>' +
                 '<span class="list-meta">' +
                   '<span class="list-title" dir="rtl">' + s.title + "</span>" +
                   '<span class="list-sub">' + s.titleFr + " — " + s.subtitle + "</span>" +
