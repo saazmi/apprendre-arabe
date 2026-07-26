@@ -101,9 +101,9 @@ window.STORIES = [
         refs: ["5:114"],
       },
       {
-        ar: ["أَرادَ الأَعْداءُ قَتْلَ عِيسى وَصَلْبَهُ.", "لٰكِنَّهُمْ ما قَتَلُوهُ وَما صَلَبُوهُ، بَلْ رَفَعَهُ اللَّهُ إِلَيْهِ."],
-        fr: ["Les ennemis voulurent tuer ʿĪsā et le crucifier.", "Mais ils ne l'ont ni tué ni crucifié : Allah l'éleva plutôt vers Lui."],
-        refs: ["4:157", "4:158"],
+        ar: ["أَرادَ الأَعْداءُ قَتْلَ عِيسى وَصَلْبَهُ.", "لٰكِنَّ اللَّهَ نَجّاهُ مِنْهُمْ."],
+        fr: ["Les ennemis voulurent tuer ʿĪsā et le crucifier.", "Mais Allah le sauva d'eux."],
+        refs: [],
         analysis: {
           phrase: "أَرادَ الأَعْداءُ قَتْلَ عِيسى",
           words: [
@@ -114,6 +114,16 @@ window.STORIES = [
           ],
           takeaway: "Un فعل + un فاعل défini (الـ, leçon 1), puis une إضافة : قَتْلَ عِيسى « le fait de tuer ʿĪsā » (leçon 2).",
         },
+      },
+      {
+        ar: ["أَلْقى اللَّهُ شَبَهَ عِيسى عَلى رَجُلٍ آخَرَ.", "فَأَخَذَهُ الأَعْداءُ وَصَلَبُوهُ وَهُمْ يَحْسِبُونَهُ عِيسى."],
+        fr: ["Allah projeta la ressemblance de ʿĪsā sur un autre homme.", "Les ennemis le saisirent et le crucifièrent, croyant que c'était ʿĪsā."],
+        refs: ["4:157"],
+      },
+      {
+        ar: ["فَما قَتَلُوا عِيسى وَما صَلَبُوهُ.", "بَلْ رَفَعَهُ اللَّهُ إِلَيْهِ إِلى السَّماءِ."],
+        fr: ["Ils n'ont donc pas tué ʿĪsā ni ne l'ont crucifié.", "Allah l'éleva plutôt vers Lui, au ciel."],
+        refs: ["4:158"],
       },
       {
         ar: ["عِيسى عَبْدُ اللَّهِ وَرَسُولُهُ.", "وَهُوَ نَبِيٌّ كَرِيمٌ مِنْ أُولِي العَزْمِ."],
