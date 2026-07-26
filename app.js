@@ -11,6 +11,8 @@
   const STORE_KEY = "arabe.progress.v3";
   const LESSONS = window.LESSONS || [];
   const VOCAB = window.VOCAB || [];
+  const STORIES = window.STORIES || [];
+  const VERSES = window.VERSES || {};
 
   // ---- bidi : isole chaque passage arabe (RTL) pour que le français et les
   //      parenthèses autour restent bien placés ----------------------------
@@ -84,6 +86,7 @@
     { id: "home", label: "Accueil", icon: "☾" },
     { id: "grammar", label: "Grammaire", icon: "ن" },
     { id: "vocab", label: "Vocabulaire", icon: "ك" },
+    { id: "stories", label: "Prophètes", icon: "ﷺ" },
   ];
 
   function shell(active, mainHTML) {
@@ -118,6 +121,7 @@
   function go(view) {
     if (view === "grammar") return screenGrammar();
     if (view === "vocab") return screenVocab();
+    if (view === "stories") return screenStories();
     return screenHome();
   }
 
@@ -145,6 +149,11 @@
             '<div class="tile-ic" dir="rtl">كَلِمَات</div>' +
             '<div class="tile-t">Vocabulaire</div>' +
             '<div class="tile-s">' + VOCAB.length + " jeux de mots · cartes & quiz</div>" +
+          "</button>" +
+          '<button class="tile" data-go="stories">' +
+            '<div class="tile-ic" dir="rtl">أَنْبِيَاء</div>' +
+            '<div class="tile-t">Prophètes</div>' +
+            '<div class="tile-s">' + STORIES.length + " histoire" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
           "</button>" +
         "</div>" +
         '<p class="footnote">Grammaire : ' + gDone + "/" + LESSONS.length +
@@ -328,6 +337,114 @@
     document.getElementById("next").onclick = function () {
       if (last) screenVocab(); else browse(deck, i + 1);
     };
+  }
+
+  // =========================================================================
+  //  HISTOIRE DES PROPHÈTES — lecture + versets cliquables + récitation
+  // =========================================================================
+  let audioEl = null, audioBtn = null;
+  function stopAudio() {
+    if (audioEl) { audioEl.pause(); audioEl = null; }
+    if (audioBtn) { audioBtn.classList.remove("playing"); audioBtn.innerHTML = "▶ Écouter"; audioBtn = null; }
+  }
+  function playAudio(url, btn) {
+    if (audioEl && audioBtn === btn) { stopAudio(); return; }
+    stopAudio();
+    audioEl = new Audio(url); audioBtn = btn;
+    btn.classList.add("playing"); btn.innerHTML = "⏸ Pause";
+    audioEl.onended = stopAudio;
+    audioEl.onerror = function () { btn.innerHTML = "⚠ indisponible"; };
+    audioEl.play().catch(function () { btn.innerHTML = "⚠ hors-ligne"; });
+  }
+
+  function screenStories() {
+    stopAudio();
+    let rows = "";
+    STORIES.forEach(function (s) {
+      rows += '<div class="list-row"><button class="row-main" data-story="' + s.id + '">' +
+                '<span class="list-ic" dir="rtl">ﷺ</span>' +
+                '<span class="list-meta">' +
+                  '<span class="list-title" dir="rtl">' + s.title + "</span>" +
+                  '<span class="list-sub">' + s.titleFr + " — " + s.subtitle + "</span>" +
+                "</span></button></div>";
+    });
+    shell("stories",
+      '<div class="section-head"><h1>Histoire des prophètes</h1>' +
+        '<p class="greeting">Lis l\'histoire en arabe. Le français est sous chaque ligne ; ' +
+        "touche une référence pour lire et écouter le verset.</p></div>" +
+      '<div class="list">' + rows + "</div>"
+    );
+    Array.prototype.forEach.call(document.querySelectorAll(".row-main"), function (b) {
+      b.onclick = function () {
+        const s = STORIES.filter(function (x) { return x.id === b.getAttribute("data-story"); })[0];
+        if (s) readStory(s, 0);
+      };
+    });
+  }
+
+  function readStory(story, i) {
+    stopAudio();
+    const card = story.cards[i];
+    const total = story.cards.length;
+    const pct = Math.round((i / total) * 100);
+    const last = i === total - 1;
+
+    let lines = "";
+    card.ar.forEach(function (a, idx) {
+      lines += '<p class="story-ar" dir="rtl">' + a + "</p>";
+      lines += '<p class="story-fr">' + (card.fr[idx] || "") + "</p>";
+    });
+
+    let refsHtml = "";
+    (card.refs || []).forEach(function (ref) {
+      const v = VERSES[ref];
+      if (!v) return;
+      const pid = "panel-" + ref.replace(":", "-");
+      refsHtml +=
+        '<div class="verse-block">' +
+          '<button class="verse-chip" data-ref="' + ref + '">' +
+            '<span class="q-ic" dir="rtl">۩</span> ' + v.frName + " " + ref +
+          "</button>" +
+          '<div class="verse-panel" id="' + pid + '" hidden>' +
+            '<div class="verse-ar" dir="rtl">' + v.ar + "</div>" +
+            '<div class="verse-fr">' + v.fr + "</div>" +
+            '<div class="verse-foot">' +
+              '<span class="verse-src" dir="rtl">' + v.surah + " · " + v.ayah + "</span>" +
+              '<button class="btn-listen" data-audio="' + v.audio + '">▶ Écouter</button>' +
+            "</div>" +
+          "</div>" +
+        "</div>";
+    });
+
+    focus(
+      '<div class="study story">' +
+        '<div class="phase-label">' + story.titleFr + " · " + (i + 1) + "/" + total + "</div>" +
+        '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
+        '<div class="card story-card">' + lines +
+          (refsHtml ? '<div class="verse-refs">' + refsHtml + "</div>" : "") +
+        "</div>" +
+        '<div class="nav-row">' +
+          (i > 0 ? '<button class="btn btn-ghost" id="prev">‹ Précédent</button>' : '<span class="spacer"></span>') +
+          '<button class="btn btn-primary" id="next">' + (last ? "Terminer" : "Suivant →") + "</button>" +
+        "</div>" +
+      "</div>",
+      "Prophètes", function () { stopAudio(); screenStories(); }
+    );
+
+    if (i > 0) document.getElementById("prev").onclick = function () { readStory(story, i - 1); };
+    document.getElementById("next").onclick = function () {
+      if (last) { stopAudio(); screenStories(); } else readStory(story, i + 1);
+    };
+    Array.prototype.forEach.call(document.querySelectorAll(".verse-chip"), function (chip) {
+      chip.onclick = function () {
+        const panel = document.getElementById("panel-" + chip.getAttribute("data-ref").replace(":", "-"));
+        panel.hidden = !panel.hidden;
+        chip.classList.toggle("open", !panel.hidden);
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".btn-listen"), function (b) {
+      b.onclick = function () { playAudio(b.getAttribute("data-audio"), b); };
+    });
   }
 
   // =========================================================================

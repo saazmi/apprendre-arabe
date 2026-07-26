@@ -145,7 +145,7 @@ bdi { font-family: var(--arabic); font-style: normal; }
 .section-head { margin-bottom: 1.6rem; }
 .section-head h1, .home h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.01em; }
 
-.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin: 2rem 0 1.5rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.1rem; margin: 2rem 0 1.5rem; }
 @media (max-width: 560px) { .tiles { grid-template-columns: 1fr; } }
 .tile {
   background: var(--surface); border: 1px solid rgba(157, 177, 216, 0.1);
@@ -227,6 +227,51 @@ bdi { font-family: var(--arabic); font-style: normal; }
   border-top: 1px solid rgba(157, 177, 216, 0.2); animation: fade 0.3s ease both; }
 .vcard-tr { font-size: clamp(1.1rem, 3.2vw, 1.5rem); color: var(--ink-soft); font-style: italic; }
 .vcard-fr { font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--emerald); margin-top: 0.4rem; font-weight: 650; }
+
+/* ---- Histoire des prophètes --------------------------------------------- */
+.story-card { display: block; text-align: left; padding: clamp(1.4rem, 4vw, 2.2rem); }
+.story-ar {
+  font-family: var(--arabic); direction: rtl; text-align: right;
+  font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.9; color: var(--ink);
+  margin-bottom: 0.15rem;
+}
+.story-fr { color: var(--ink-soft); font-size: clamp(0.95rem, 2.6vw, 1.1rem); line-height: 1.45; margin-bottom: 1.1rem; }
+.story-fr:last-child { margin-bottom: 0; }
+
+.verse-refs {
+  margin-top: 1.2rem; padding-top: 1.1rem;
+  border-top: 1px solid rgba(157, 177, 216, 0.18);
+  display: flex; flex-direction: column; gap: 0.8rem;
+}
+.verse-chip {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(231, 201, 118, 0.14); color: var(--gold);
+  border: 1px solid rgba(231, 201, 118, 0.35); border-radius: 999px;
+  padding: 0.45rem 0.95rem; font-family: var(--font); font-size: 0.95rem; font-weight: 650;
+  cursor: pointer; transition: background 0.15s ease;
+}
+.verse-chip:hover { background: rgba(231, 201, 118, 0.22); }
+.verse-chip.open { background: rgba(231, 201, 118, 0.3); }
+.q-ic { font-family: var(--arabic); font-size: 1.15rem; }
+
+.verse-panel {
+  background: rgba(5, 13, 34, 0.4); border: 1px solid rgba(157, 177, 216, 0.18);
+  border-radius: 16px; padding: 1.1rem 1.2rem; animation: fade 0.25s ease both;
+}
+.verse-ar {
+  font-family: var(--arabic); direction: rtl; text-align: right;
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 2.1; color: var(--ink);
+}
+.verse-fr { color: var(--ink-soft); font-size: 1rem; line-height: 1.5; margin-top: 0.7rem; }
+.verse-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-top: 1rem; flex-wrap: wrap; }
+.verse-src { font-family: var(--arabic); color: var(--gold); font-size: 1rem; }
+.btn-listen {
+  background: linear-gradient(135deg, var(--emerald), var(--emerald-d)); color: #fff;
+  border: none; border-radius: 999px; padding: 0.5rem 1.15rem;
+  font-family: var(--font); font-size: 0.95rem; font-weight: 650; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(91, 140, 255, 0.3);
+}
+.btn-listen.playing { background: var(--again); box-shadow: none; }
 
 .btn {
   font-family: var(--font);
