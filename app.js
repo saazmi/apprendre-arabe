@@ -389,10 +389,33 @@
     const pct = Math.round((i / total) * 100);
     const last = i === total - 1;
 
+    const TYPE = { nom: "اسم · nom", verbe: "فعل · verbe", particule: "حرف · particule", pronom: "ضمير · pronom" };
+    function renderAn(an) {
+      let w = "";
+      an.words.forEach(function (wd) {
+        w += '<div class="aw">' +
+               '<span class="aw-word" dir="rtl">' + wd.w + "</span>" +
+               '<span class="aw-body">' +
+                 '<span class="aw-type t-' + wd.type + '" dir="rtl">' + (TYPE[wd.type] || wd.type) + "</span>" +
+                 '<span class="aw-role" dir="ltr">' + wd.role + "</span>" +
+               "</span>" +
+             "</div>";
+      });
+      return '<div class="analyse-words">' + w + "</div>" +
+             '<div class="analyse-take">' + an.takeaway + "</div>";
+    }
+
+    // chaque phrase : arabe, français grisé, et son propre bouton d'analyse
     let lines = "";
     card.ar.forEach(function (a, idx) {
-      lines += '<p class="story-ar" dir="rtl">' + a + "</p>";
-      lines += '<p class="story-fr">' + (card.fr[idx] || "") + "</p>";
+      lines += '<div class="story-line">' +
+        '<p class="story-ar" dir="rtl">' + a + "</p>" +
+        '<p class="story-fr">' + (card.fr[idx] || "") + "</p>";
+      if (card.an && card.an[idx]) {
+        lines += '<button class="analyse-btn" data-target="an-' + idx + '">⚙ Analyser la phrase</button>' +
+                 '<div class="analyse-panel" id="an-' + idx + '" hidden>' + renderAn(card.an[idx]) + "</div>";
+      }
+      lines += "</div>";
     });
 
     let refsHtml = "";
@@ -416,34 +439,6 @@
         "</div>";
     });
 
-    // bouton d'analyse grammaticale (leçons 1–4) sur les phrases-exemples
-    if (card.analysis) {
-      const a = card.analysis;
-      const TYPE = {
-        nom: "اسم · nom", verbe: "فعل · verbe", particule: "حرف · particule", pronom: "ضمير · pronom",
-      };
-      let wordsHtml = "";
-      a.words.forEach(function (wd) {
-        wordsHtml +=
-          '<div class="aw">' +
-            '<span class="aw-word" dir="rtl">' + wd.w + "</span>" +
-            '<span class="aw-body">' +
-              '<span class="aw-type t-' + wd.type + '" dir="rtl">' + (TYPE[wd.type] || wd.type) + "</span>" +
-              '<span class="aw-role" dir="ltr">' + wd.role + "</span>" +
-            "</span>" +
-          "</div>";
-      });
-      refsHtml +=
-        '<div class="verse-block">' +
-          '<button class="analyse-btn" data-an="1">⚙ Analyser la structure de la phrase</button>' +
-          '<div class="analyse-panel" id="analyse" hidden>' +
-            '<div class="analyse-phrase" dir="rtl">' + a.phrase + "</div>" +
-            '<div class="analyse-words">' + wordsHtml + "</div>" +
-            '<div class="analyse-take">' + a.takeaway + "</div>" +
-          "</div>" +
-        "</div>";
-    }
-
     focus(
       '<div class="study story">' +
         '<div class="phase-label">' + story.titleFr + " · " + (i + 1) + "/" + total + "</div>" +
@@ -456,7 +451,7 @@
           '<button class="btn btn-primary" id="next">' + (last ? "Terminer" : "Suivant →") + "</button>" +
         "</div>" +
       "</div>",
-      "Prophètes", function () { stopAudio(); screenStories(); }
+      "Récits", function () { stopAudio(); screenStories(); }
     );
 
     if (i > 0) document.getElementById("prev").onclick = function () { readStory(story, i - 1); };
@@ -473,12 +468,13 @@
     Array.prototype.forEach.call(document.querySelectorAll(".btn-listen"), function (b) {
       b.onclick = function () { playAudio(b.getAttribute("data-audio"), b); };
     });
-    const anBtn = document.querySelector(".analyse-btn");
-    if (anBtn) anBtn.onclick = function () {
-      const p = document.getElementById("analyse");
-      p.hidden = !p.hidden;
-      anBtn.classList.toggle("open", !p.hidden);
-    };
+    Array.prototype.forEach.call(document.querySelectorAll(".analyse-btn"), function (b) {
+      b.onclick = function () {
+        const p = document.getElementById(b.getAttribute("data-target"));
+        p.hidden = !p.hidden;
+        b.classList.toggle("open", !p.hidden);
+      };
+    });
   }
 
   // =========================================================================
