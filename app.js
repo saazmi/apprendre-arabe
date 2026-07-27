@@ -389,6 +389,8 @@
     const pct = Math.round((i / total) * 100);
     const last = i === total - 1;
 
+    const LOUPE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>';
     const TYPE = { nom: "اسم · nom", verbe: "فعل · verbe", particule: "حرف · particule", pronom: "ضمير · pronom" };
     function renderAn(an) {
       let w = "";
@@ -412,8 +414,11 @@
         '<p class="story-ar" dir="rtl">' + a + "</p>" +
         '<p class="story-fr">' + (card.fr[idx] || "") + "</p>";
       if (card.an && card.an[idx]) {
-        lines += '<button class="analyse-btn" data-target="an-' + idx + '">⚙ Analyser la phrase</button>' +
-                 '<div class="analyse-panel" id="an-' + idx + '" hidden>' + renderAn(card.an[idx]) + "</div>";
+        lines += '<button class="loupe-btn" data-target="an-' + idx + '" ' +
+                   'title="Analyser la phrase" aria-label="Analyser la phrase">' + LOUPE + "</button>" +
+                 '<div class="analyse-panel" id="an-' + idx + '" hidden>' +
+                   '<div class="analyse-head">Analyser la phrase</div>' + renderAn(card.an[idx]) +
+                 "</div>";
       }
       lines += "</div>";
     });
@@ -468,7 +473,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".btn-listen"), function (b) {
       b.onclick = function () { playAudio(b.getAttribute("data-audio"), b); };
     });
-    Array.prototype.forEach.call(document.querySelectorAll(".analyse-btn"), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll(".loupe-btn"), function (b) {
       b.onclick = function () {
         const p = document.getElementById(b.getAttribute("data-target"));
         p.hidden = !p.hidden;
