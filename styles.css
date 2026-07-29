@@ -1345,10 +1345,12 @@ bdi { font-family: var(--arabic); font-style: normal; }
   color: var(--good);
 }
 
-/* Home grid: 4 half-cards (todo suggestions) + 4 full tiles in one flow */
+/* Home grid — 6-col × 2 rows.
+   Row 1: 3 feature tiles (span 2 cols each).
+   Row 2: Hifdh tile (span 2) + 4 todo half-cards (span 1). */
 .home-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
   margin: 2rem 0 1.5rem;
 }
@@ -1362,29 +1364,42 @@ bdi { font-family: var(--arabic); font-style: normal; }
   font-family: var(--font);
   padding: 1rem;
   transition: transform 0.12s ease, border-color .15s ease, background .15s ease;
+  min-width: 0;
 }
 .home-card:active { transform: scale(0.98); }
-.home-card.tile { flex: 2 1 220px; min-width: 220px; padding: clamp(1.4rem, 3.5vw, 2rem); text-align: center; border-radius: 22px; }
+.home-card.tile {
+  grid-column: span 2;
+  padding: clamp(1.2rem, 3vw, 1.8rem);
+  text-align: center;
+  border-radius: 22px;
+}
 .home-half {
-  flex: 1 1 150px;
-  min-width: 150px;
-  display: grid;
-  grid-template-columns: 2.2rem 1fr;
-  align-items: center;
-  gap: 0.7rem;
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
   text-align: left;
   border-left: 3px solid var(--emerald);
+  padding: 0.7rem 0.8rem;
+  min-height: 0;
 }
 .home-half:hover { background: var(--surface-2); border-color: rgba(91, 140, 255, 0.55); }
 .home-half-ic {
   font-family: var(--arabic);
   color: var(--emerald);
-  font-size: 1.3rem;
-  text-align: center;
+  font-size: 1.1rem;
 }
-.home-half-txt { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
-.home-half-label { font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.home-half-sub { color: var(--ink-soft); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-half-txt { display: flex; flex-direction: column; min-width: 0; gap: 0.15rem; width: 100%; }
+.home-half-label { font-weight: 600; font-size: 0.85rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.home-half-sub { color: var(--ink-soft); font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Portrait / narrow: drop to 2 cols; features become full-width. */
+@media (max-width: 720px) {
+  .home-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-card.tile { grid-column: span 2; }
+  .home-half { grid-column: span 1; }
+}
 
 
 /* Widen the home page so half-cards + tiles can share the same row on iPad landscape */

@@ -181,14 +181,22 @@
   // =========================================================================
   //  ACCUEIL
   // =========================================================================
+  function surahSuggestion(n) {
+    const meta = HIFDH_META[n - 1];
+    const inAmma = n >= 78 && n <= 114;
+    return { kind: "surah", n: n,
+             label: "Sourate " + meta.n + " · " + meta.tr,
+             sub: (inAmma ? "Juzʾ ʿAmma · " : "") + meta.ayahs + " ayat",
+             go: function () { screenSurah(n); } };
+  }
   function todaySuggestions() {
     const out = [];
-    // 1. In-progress: any lesson or vocab deck partially done
+    // 1. In-progress lessons / vocab decks — top priority
     LESSONS.forEach(function (l) {
       const pos = getPos("g", l.id);
       const total = l.cards.length;
       if (pos > 0 && pos < total) {
-        out.push({ kind: "lesson", label: "Reprendre — Leçon " + l.n + " · " + l.title,
+        out.push({ kind: "lesson", label: "Reprendre L" + l.n + " · " + l.title,
                    sub: pos + "/" + total + " cartes", go: function () { teach(l); } });
       }
     });
@@ -196,35 +204,36 @@
       const pos = getPos("v", d.id);
       const total = d.words.length;
       if (pos > 0 && pos < total) {
-        out.push({ kind: "vocab", label: "Reprendre — " + d.title,
+        out.push({ kind: "vocab", label: "Reprendre " + d.title,
                    sub: pos + "/" + total + " cartes", go: function () { browse(d); } });
       }
     });
-    if (out.length) return out.slice(0, 3);
-
-    // 2. No unfinished work — suggest next new item in each category
-    const nextL = LESSONS.filter(function (l) { return getPos("g", l.id) === 0 && !best("g:" + l.id); })[0];
-    if (nextL) out.push({ kind: "lesson", label: "Nouvelle leçon — Leçon " + nextL.n + " · " + nextL.title,
-                          sub: nextL.cards.length + " cartes · quiz", go: function () { teach(nextL); } });
-
-    const nextV = VOCAB.filter(function (d) { return getPos("v", d.id) === 0 && !best("v:" + d.id); })[0];
-    if (nextV) out.push({ kind: "vocab", label: "Nouveau vocabulaire — " + nextV.title,
-                          sub: nextV.words.length + " mots", go: function () { browse(nextV); } });
-
-    const nextS = STORIES[0];
-    if (nextS) out.push({ kind: "story", label: "Lire un récit — " + (nextS.title || nextS.name || ""),
-                          sub: "coran & versets", go: function () { screenStories(); } });
-
-    // Next surah: prefer Juz Amma undone, else next by Quran order
-    let nextSurah = null;
-    for (let n = 78; n <= 114; n++) if (!getStarts(state)[n]) { nextSurah = n; break; }
-    if (!nextSurah) for (let n = 1; n <= 114; n++) if (!getStarts(state)[n]) { nextSurah = n; break; }
-    if (nextSurah) {
-      const meta = HIFDH_META[nextSurah - 1];
-      const inAmma = nextSurah >= 78 && nextSurah <= 114;
-      out.push({ kind: "surah", label: "Commencer — sourate " + meta.n + " · " + meta.tr,
-                 sub: (inAmma ? "Juzʾ ʿAmma · " : "") + meta.ayahs + " ayat",
-                 go: function () { screenSurah(nextSurah); } });
+    // 2. Next new lesson / vocab / story (one of each, if room)
+    if (out.length < 4) {
+      const nextL = LESSONS.filter(function (l) { return getPos("g", l.id) === 0 && !best("g:" + l.id); })[0];
+      if (nextL) out.push({ kind: "lesson", label: "Nouvelle L" + nextL.n + " · " + nextL.title,
+                            sub: nextL.cards.length + " cartes", go: function () { teach(nextL); } });
+    }
+    if (out.length < 4) {
+      const nextV = VOCAB.filter(function (d) { return getPos("v", d.id) === 0 && !best("v:" + d.id); })[0];
+      if (nextV) out.push({ kind: "vocab", label: "Vocabulaire · " + nextV.title,
+                            sub: nextV.words.length + " mots", go: function () { browse(nextV); } });
+    }
+    if (out.length < 4 && STORIES.length) {
+      const s = STORIES[0];
+      out.push({ kind: "story", label: "Récit — " + (s.title || s.name || ""),
+                 sub: "coran & versets", go: function () { screenStories(); } });
+    }
+    // 3. Pad remaining slots with hifdh surahs (Juzʾ ʿAmma first, then Quran order).
+    //    This is where Hifdh takes over: any leftover half-card goes to a surah.
+    while (out.length < 4) {
+      const already = {};
+      out.forEach(function (i) { if (i.kind === "surah") already[i.n] = true; });
+      let nextN = null;
+      for (let n = 78; n <= 114; n++) if (!getStarts(state)[n] && !already[n]) { nextN = n; break; }
+      if (!nextN) for (let n = 1; n <= 114; n++) if (!getStarts(state)[n] && !already[n]) { nextN = n; break; }
+      if (!nextN) break;
+      out.push(surahSuggestion(nextN));
     }
     return out.slice(0, 4);
   }
@@ -235,7 +244,7 @@
                              : "As-salāmu ʿalaykum · une séance ce soir ?";
     const gDone = LESSONS.filter(l => best("g:" + l.id)).length;
     const vDone = VOCAB.filter(d => best("v:" + d.id)).length;
-    const todo = todaySuggestions().slice(0, 4);
+    const todo = todaySuggestions();
     const todoHTML = todo.map(function (t, idx) {
       const ic = t.kind === "lesson" ? "ن" : t.kind === "vocab" ? "ك" : t.kind === "story" ? "ق" : "ح";
       return '<button class="home-card home-half" data-todo="' + idx + '">' +
@@ -252,7 +261,7 @@
         '<h1>Ahlan wa sahlan 🌙</h1>' +
         '<p class="greeting">' + salut + "</p>" +
         '<div class="home-grid">' +
-          todoHTML +
+          // Row 1: 3 features (each spans 2 of 6 cols)
           '<button class="home-card tile" data-go="grammar">' +
             '<div class="tile-ic" dir="rtl">نَحْو</div>' +
             '<div class="tile-t">Grammaire</div>' +
@@ -268,11 +277,13 @@
             '<div class="tile-t">Récits du Coran</div>' +
             '<div class="tile-s">' + STORIES.length + " récit" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
           "</button>" +
+          // Row 2: Hifdh (spans 2) + 4 todo halves (spans 1 each)
           '<button class="home-card tile" data-go="hifdh">' +
             '<div class="tile-ic" dir="rtl">حِفْظ</div>' +
             '<div class="tile-t">Hifdh</div>' +
             '<div class="tile-s">Mémorisation · verset par verset</div>' +
           "</button>" +
+          todoHTML +
         "</div>" +
         '<p class="footnote">Grammaire : ' + gDone + "/" + LESSONS.length +
           " · Vocabulaire : " + vDone + "/" + VOCAB.length +
