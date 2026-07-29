@@ -261,7 +261,12 @@
         '<h1>Ahlan wa sahlan 🌙</h1>' +
         '<p class="greeting">' + salut + "</p>" +
         '<div class="home-grid">' +
-          // Row 1: 3 features (each spans 2 of 6 cols)
+          // Row 1: Hifdh (hero) + Grammaire + Vocabulaire
+          '<button class="home-card tile tile-hero" data-go="hifdh">' +
+            '<div class="tile-ic" dir="rtl">حِفْظ</div>' +
+            '<div class="tile-t">Hifdh</div>' +
+            '<div class="tile-s">Mémorisation · verset par verset</div>' +
+          "</button>" +
           '<button class="home-card tile" data-go="grammar">' +
             '<div class="tile-ic" dir="rtl">نَحْو</div>' +
             '<div class="tile-t">Grammaire</div>' +
@@ -272,16 +277,11 @@
             '<div class="tile-t">Vocabulaire</div>' +
             '<div class="tile-s">' + VOCAB.length + " jeux de mots · cartes & quiz</div>" +
           "</button>" +
+          // Row 2: Récits + 4 Hifdh-prioritized todo halves
           '<button class="home-card tile" data-go="stories">' +
             '<div class="tile-ic" dir="rtl">قَصَص</div>' +
             '<div class="tile-t">Récits du Coran</div>' +
             '<div class="tile-s">' + STORIES.length + " récit" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
-          "</button>" +
-          // Row 2: Hifdh (spans 2) + 4 todo halves (spans 1 each)
-          '<button class="home-card tile" data-go="hifdh">' +
-            '<div class="tile-ic" dir="rtl">حِفْظ</div>' +
-            '<div class="tile-t">Hifdh</div>' +
-            '<div class="tile-s">Mémorisation · verset par verset</div>' +
           "</button>" +
           todoHTML +
         "</div>" +

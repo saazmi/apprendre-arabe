@@ -1373,6 +1373,15 @@ bdi { font-family: var(--arabic); font-style: normal; }
   text-align: center;
   border-radius: 22px;
 }
+.home-card.tile.tile-hero {
+  border-color: rgba(231, 201, 118, 0.55);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(231, 201, 118, 0.12), transparent 70%),
+    var(--surface);
+  box-shadow: 0 14px 44px rgba(2, 8, 24, 0.55), 0 0 0 1px rgba(231, 201, 118, 0.15);
+}
+.home-card.tile.tile-hero .tile-ic { color: var(--gold); }
+.home-card.tile.tile-hero:hover { border-color: var(--gold); }
 .home-half {
   grid-column: span 1;
   display: flex;
