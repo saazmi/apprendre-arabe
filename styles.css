@@ -1387,29 +1387,3 @@ bdi { font-family: var(--arabic); font-style: normal; }
 .today-sub { color: var(--ink-soft); font-size: 0.82rem; }
 .today-go { color: var(--emerald); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
 
-/* Hifdh header row: title + refresh button */
-.hf-head-row {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 0.4rem;
-}
-.hf-head-row h1 { margin: 0; }
-.hf-refresh {
-  background: rgba(5, 13, 34, 0.4);
-  border: 1px solid rgba(157, 177, 216, 0.18);
-  color: var(--ink-soft);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  font-size: 1.15rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.hf-refresh:hover { color: var(--ink); border-color: rgba(157, 177, 216, 0.4); }
-.hf-refresh.spinning { animation: hf-spin 0.8s linear infinite; color: var(--emerald); border-color: rgba(91, 140, 255, 0.55); }
-@keyframes hf-spin { to { transform: rotate(360deg); } }

@@ -153,6 +153,14 @@
   }
 
   function go(view) {
+    // Always kick off a background refresh from cloud on every tab switch.
+    // If our own row changed elsewhere, re-render the current view with fresh
+    // state. If only the friend row changed and we're on Hifdh, patch the list
+    // in place. Silent when nothing changed.
+    refreshFromCloud().then(function (changed) {
+      if (changed.own) return go(view);
+      if (changed.friend && view === "hifdh") refreshHifdhListInPlace();
+    });
     if (view === "grammar") return screenGrammar();
     if (view === "vocab") return screenVocab();
     if (view === "stories") return screenStories();
@@ -1078,11 +1086,7 @@
              label + sortArrow(key) + "</button>";
     };
     shell("hifdh",
-      '<div class="section-head">' +
-        '<div class="hf-head-row">' +
-          "<h1>Hifdh</h1>" +
-          '<button class="hf-refresh" id="hf-refresh" title="Rafraîchir depuis le cloud">↻</button>' +
-        "</div>" +
+      '<div class="section-head"><h1>Hifdh</h1>' +
         '<p class="greeting">' +
           '<a class="hf-who" data-stats="me">Moi</a> : ' + my.m + " mémorisés · " + my.l + " en cours" +
           ' &nbsp;·&nbsp; ' +
@@ -1138,20 +1142,6 @@
     if (hu) hu.onchange = function () { hideNotStarted = hu.checked; refreshHifdhListInPlace(); };
     const ha = document.getElementById("hf-only-amma");
     if (ha) ha.onchange = function () { onlyJuzAmma = ha.checked; refreshHifdhListInPlace(); };
-
-    // Background refresh on every Hifdh tab open. Re-renders only if something
-    // actually changed, so it's silent when there's nothing new.
-    const refreshBtn = document.getElementById("hf-refresh");
-    function runRefresh(fromButton) {
-      if (refreshBtn) refreshBtn.classList.add("spinning");
-      refreshFromCloud().then(function (changed) {
-        if (refreshBtn) refreshBtn.classList.remove("spinning");
-        if (changed.own || fromButton) return screenHifdh();
-        if (changed.friend) refreshHifdhListInPlace();
-      });
-    }
-    runRefresh(false);
-    if (refreshBtn) refreshBtn.onclick = function () { runRefresh(true); };
 
     const st = document.getElementById("hf-search-toggle");
     if (st) st.onclick = function () {
