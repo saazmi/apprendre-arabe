@@ -1712,25 +1712,15 @@
 
   // ---- démarrage ---------------------------------------------------------
   boot();
+  // The service worker was retired because its cache-first strategy stranded
+  // mobile devices on stale JS. sw.js is now a self-unregistering kill-worker
+  // that runs once for anyone still holding an old SW, then goes away. New
+  // visitors register nothing. Live progress is cloud-sync only.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      // updateViaCache: "none" → browser doesn't cache sw.js, so it's re-fetched
-      // on every registration → new deployments are detected reliably.
-      navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
-        .then(function (reg) { try { reg.update(); } catch (_) {} })
-        .catch(function () {});
-      // When a NEW SW takes over an already-controlled page (i.e. an update),
-      // reload once so the page runs the fresh assets. Skip on first-ever install
-      // where there was no prior controller — that first controllerchange isn't
-      // an update, it's the initial handshake.
-      if (navigator.serviceWorker.controller) {
-        let reloading = false;
-        navigator.serviceWorker.addEventListener("controllerchange", function () {
-          if (reloading) return;
-          reloading = true;
-          window.location.reload();
-        });
-      }
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { try { r.unregister(); } catch (_) {} });
+      }).catch(function () {});
     });
   }
 })();

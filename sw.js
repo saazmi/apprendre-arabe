@@ -1,76 +1,28 @@
-/* Service worker — met l'app en cache pour un usage hors-ligne.
-   Change CACHE à chaque déploiement pour forcer le rafraîchissement.
-   Stratégie :
-   - Navigation (HTML) : network-first → sinon cache. Empêche les tablettes
-     de rester bloquées sur un vieux index.html qui référence d'anciens JS.
-   - Autres assets : cache-first (rapide, hors-ligne). */
-
-const CACHE = "arabe-v46";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./styles.css",
-  "./lessons.js",
-  "./vocab.js",
-  "./stories.js",
-  "./hifdh-meta.js",
-  "./cloud.js",
-  "./quiz.js",
-  "./app.js",
-  "./manifest.webmanifest",
-  "./icon.svg",
-  "./apple-touch-icon.png",
-  "./fonts/scheherazade-new-400.woff2",
-  "./fonts/scheherazade-new-700.woff2",
-];
+/* Kill-worker.
+   The previous service worker cached HTML too aggressively, leaving mobile
+   devices stuck on stale JS with no way to update short of clearing browser
+   data. This replacement worker installs, deletes every cache, unregisters
+   itself, and reloads all open clients so the page runs the network-fresh
+   assets. After it self-destructs, the site runs with no service worker,
+   no offline cache, and no stale-JS risk. */
 
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", function (e) {
-  e.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== CACHE; })
-                            .map(function (k) { return caches.delete(k); }));
-    }).then(function () { return self.clients.claim(); })
-  );
+  e.waitUntil((async function () {
+    // 1. Delete every cache this origin has ever created.
+    const keys = await caches.keys();
+    await Promise.all(keys.map(function (k) { return caches.delete(k); }));
+    // 2. Unregister self so future navigations don't touch a worker at all.
+    try { await self.registration.unregister(); } catch (_) {}
+    // 3. Claim + reload all client windows so they pick up the fresh HTML/JS.
+    const clientsList = await self.clients.matchAll({ type: "window" });
+    for (const c of clientsList) {
+      try { c.navigate(c.url); } catch (_) {}
+    }
+  })());
 });
 
-function isNavigation(req) {
-  if (req.mode === "navigate") return true;
-  const accept = req.headers.get("accept") || "";
-  return req.method === "GET" && accept.indexOf("text/html") !== -1;
-}
-
-self.addEventListener("fetch", function (e) {
-  const req = e.request;
-  if (req.method !== "GET") return;
-
-  if (isNavigation(req)) {
-    // Network-first for HTML navigations. Refreshes the entry point on every
-    // online visit so updated <script> tags reach the page.
-    e.respondWith(
-      fetch(req).then(function (res) {
-        const copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put("./index.html", copy); });
-        return res;
-      }).catch(function () {
-        return caches.match(req).then(function (hit) { return hit || caches.match("./index.html"); });
-      })
-    );
-    return;
-  }
-
-  // Cache-first for other assets.
-  e.respondWith(
-    caches.match(req).then(function (hit) {
-      return hit || fetch(req).then(function (res) {
-        const copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        return res;
-      }).catch(function () { return hit; });
-    })
-  );
-});
+/* No fetch handler → every request goes straight to the network. */
