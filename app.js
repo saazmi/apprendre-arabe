@@ -153,20 +153,30 @@
   }
 
   function go(view) {
-    // Always kick off a background refresh from cloud on every tab switch.
-    // If our own row changed elsewhere, re-render the current view with fresh
-    // state. If only the friend row changed and we're on Hifdh, patch the list
-    // in place. Silent when nothing changed.
-    refreshFromCloud().then(function (changed) {
-      if (changed.own) return go(view);
-      if (changed.friend && view === "hifdh") refreshHifdhListInPlace();
-    });
     if (view === "grammar") return screenGrammar();
     if (view === "vocab") return screenVocab();
     if (view === "stories") return screenStories();
     if (view === "hifdh") return screenHifdh();
     return screenHome();
   }
+
+  // Track the current top-level view so a background refresh (triggered on
+  // app focus) knows what to re-render.
+  let currentView = "home";
+  const _goInner = go;
+  go = function (view) { currentView = view; return _goInner(view); };
+
+  // Refresh from cloud when the app becomes visible again — the classic
+  // "just opened the app after switching away" moment. Silent when nothing
+  // changed; re-renders the current view only if our own row was edited
+  // elsewhere, or patches the Hifdh list if the friend row changed.
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    refreshFromCloud().then(function (changed) {
+      if (changed.own) return go(currentView);
+      if (changed.friend && currentView === "hifdh") refreshHifdhListInPlace();
+    });
+  });
 
   // =========================================================================
   //  ACCUEIL
