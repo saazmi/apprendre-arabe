@@ -235,46 +235,40 @@
                              : "As-salāmu ʿalaykum · une séance ce soir ?";
     const gDone = LESSONS.filter(l => best("g:" + l.id)).length;
     const vDone = VOCAB.filter(d => best("v:" + d.id)).length;
-    const todo = todaySuggestions();
-    const todoHTML = todo.length ? (
-      '<div class="today">' +
-        '<h2>À faire aujourd\'hui</h2>' +
-        '<div class="today-list">' +
-          todo.map(function (t, idx) {
-            const ic = t.kind === "lesson" ? "ن" : t.kind === "vocab" ? "ك" : t.kind === "story" ? "ق" : "ح";
-            return '<button class="today-item" data-todo="' + idx + '">' +
-                     '<span class="today-ic" dir="rtl">' + ic + "</span>" +
-                     '<span class="today-txt"><span class="today-label">' + t.label + "</span>" +
-                       '<span class="today-sub">' + t.sub + "</span></span>" +
-                     '<span class="today-go">Ouvrir →</span>' +
-                   "</button>";
-          }).join("") +
-        "</div>" +
-      "</div>"
-    ) : "";
+    const todo = todaySuggestions().slice(0, 4);
+    const todoHTML = todo.map(function (t, idx) {
+      const ic = t.kind === "lesson" ? "ن" : t.kind === "vocab" ? "ك" : t.kind === "story" ? "ق" : "ح";
+      return '<button class="home-card home-half" data-todo="' + idx + '">' +
+               '<span class="home-half-ic" dir="rtl">' + ic + "</span>" +
+               '<span class="home-half-txt">' +
+                 '<span class="home-half-label">' + t.label + "</span>" +
+                 '<span class="home-half-sub">' + t.sub + "</span>" +
+               "</span>" +
+             "</button>";
+    }).join("");
 
     shell("home",
       '<div class="home">' +
         '<h1>Ahlan wa sahlan 🌙</h1>' +
         '<p class="greeting">' + salut + "</p>" +
-        todoHTML +
-        '<div class="tiles">' +
-          '<button class="tile" data-go="grammar">' +
+        '<div class="home-grid">' +
+          todoHTML +
+          '<button class="home-card tile" data-go="grammar">' +
             '<div class="tile-ic" dir="rtl">نَحْو</div>' +
             '<div class="tile-t">Grammaire</div>' +
             '<div class="tile-s">' + LESSONS.length + " leçons · apprendre & réviser</div>" +
           "</button>" +
-          '<button class="tile" data-go="vocab">' +
+          '<button class="home-card tile" data-go="vocab">' +
             '<div class="tile-ic" dir="rtl">كَلِمَات</div>' +
             '<div class="tile-t">Vocabulaire</div>' +
             '<div class="tile-s">' + VOCAB.length + " jeux de mots · cartes & quiz</div>" +
           "</button>" +
-          '<button class="tile" data-go="stories">' +
+          '<button class="home-card tile" data-go="stories">' +
             '<div class="tile-ic" dir="rtl">قَصَص</div>' +
             '<div class="tile-t">Récits du Coran</div>' +
             '<div class="tile-s">' + STORIES.length + " récit" + (STORIES.length > 1 ? "s" : "") + " · lecture & versets</div>" +
           "</button>" +
-          '<button class="tile" data-go="hifdh">' +
+          '<button class="home-card tile" data-go="hifdh">' +
             '<div class="tile-ic" dir="rtl">حِفْظ</div>' +
             '<div class="tile-t">Hifdh</div>' +
             '<div class="tile-s">Mémorisation · verset par verset</div>' +
@@ -288,7 +282,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".tile"), function (b) {
       b.onclick = function () { go(b.getAttribute("data-go")); };
     });
-    Array.prototype.forEach.call(document.querySelectorAll(".today-item"), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-todo]"), function (b) {
       b.onclick = function () {
         const idx = parseInt(b.getAttribute("data-todo"), 10);
         if (todo[idx] && todo[idx].go) todo[idx].go();

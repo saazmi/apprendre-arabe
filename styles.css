@@ -1345,45 +1345,47 @@ bdi { font-family: var(--arabic); font-style: normal; }
   color: var(--good);
 }
 
-/* Home widget: "À faire aujourd'hui" */
-.today {
-  margin: 1.4rem 0 2rem;
-  text-align: left;
+/* Home grid: 4 half-cards (todo suggestions) + 4 full tiles in one flow */
+.home-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0 1.5rem;
 }
-.today h2 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.6rem;
-}
-.today-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.today-item {
-  display: grid;
-  grid-template-columns: 2.6rem 1fr auto;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.75rem 0.9rem;
+.home-card {
+  border-radius: 18px;
+  border: 1px solid rgba(157, 177, 216, 0.12);
   background: var(--surface);
-  border: 1px solid rgba(157, 177, 216, 0.15);
-  border-left: 3px solid var(--emerald);
-  border-radius: 12px;
+  box-shadow: var(--shadow);
   cursor: pointer;
   color: var(--ink);
-  font: inherit;
-  text-align: left;
-  transition: background .15s ease, border-color .15s ease;
+  font-family: var(--font);
+  padding: 1rem;
+  transition: transform 0.12s ease, border-color .15s ease, background .15s ease;
 }
-.today-item:hover { background: var(--surface-2); border-color: rgba(91, 140, 255, 0.55); }
-.today-ic {
+.home-card:active { transform: scale(0.98); }
+.home-card.tile { flex: 2 1 220px; min-width: 220px; padding: clamp(1.4rem, 3.5vw, 2rem); text-align: center; border-radius: 22px; }
+.home-half {
+  flex: 1 1 150px;
+  min-width: 150px;
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+  border-left: 3px solid var(--emerald);
+}
+.home-half:hover { background: var(--surface-2); border-color: rgba(91, 140, 255, 0.55); }
+.home-half-ic {
   font-family: var(--arabic);
   color: var(--emerald);
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   text-align: center;
 }
-.today-txt { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
-.today-label { font-weight: 600; }
-.today-sub { color: var(--ink-soft); font-size: 0.82rem; }
-.today-go { color: var(--emerald); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.home-half-txt { display: flex; flex-direction: column; min-width: 0; gap: 0.1rem; }
+.home-half-label { font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-half-sub { color: var(--ink-soft); font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+
+/* Widen the home page so half-cards + tiles can share the same row on iPad landscape */
+.main .screen[data-view="home"] { max-width: 1200px; }
