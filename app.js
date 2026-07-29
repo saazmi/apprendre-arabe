@@ -71,10 +71,16 @@
   //   offline mirror so the app still renders when the network is down.
   function localLoad() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (_) { return {}; } }
   function localSave(s) { try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (_) {} }
+  // Track the newest server timestamp we know about for our own row. Used to
+  // detect edits made from another device: if the cloud value is greater, we
+  // adopt server state on the next refresh.
+  let myLastCloudTs = "";
   function cloudSave(s) {
     localSave(s);
     if (window.Cloud && Cloud.isSignedIn()) {
-      Cloud.saveData(s).catch(function (e) { console.warn("cloud save failed", e); });
+      const ts = new Date().toISOString();
+      myLastCloudTs = ts;
+      Cloud.saveData(s, ts).catch(function (e) { console.warn("cloud save failed", e); });
     }
   }
   let state = { scores: {} };
@@ -1029,6 +1035,37 @@
     return true;
   }
 
+  // Pull fresh rows from Supabase. Adopts a newer own row (edited elsewhere)
+  // only when its updated_at is strictly greater than what we last wrote.
+  // Always updates the friend row. Returns which parts changed.
+  async function refreshFromCloud() {
+    if (!window.Cloud || !Cloud.isSignedIn()) return { own: false, friend: false };
+    try {
+      const rows = await Cloud.loadAll();
+      const me = Cloud.currentUserId();
+      const newOwn = (rows || []).filter(r => r.user_id === me)[0] || null;
+      const newFriend = (rows || []).filter(r => r.user_id !== me)[0] || null;
+      const oldFriend = (allRows || []).filter(r => r.user_id !== me)[0] || null;
+      let ownChanged = false;
+      let friendChanged = false;
+      if (newFriend && (!oldFriend || newFriend.updated_at !== oldFriend.updated_at ||
+                        (newFriend.display_name !== (oldFriend && oldFriend.display_name)))) {
+        friendChanged = true;
+      }
+      if (newOwn && newOwn.updated_at && (!myLastCloudTs || newOwn.updated_at > myLastCloudTs)) {
+        state = Object.assign({ scores: {} }, newOwn.data || {});
+        myLastCloudTs = newOwn.updated_at;
+        localSave(state);
+        ownChanged = true;
+      }
+      allRows = rows || [];
+      return { own: ownChanged, friend: friendChanged };
+    } catch (e) {
+      console.warn("refresh from cloud failed", e);
+      return { own: false, friend: false };
+    }
+  }
+
   function screenHifdh() {
     const my = overallProgress(state);
     const fr = overallProgress(friendData());
@@ -1041,7 +1078,11 @@
              label + sortArrow(key) + "</button>";
     };
     shell("hifdh",
-      '<div class="section-head"><h1>Hifdh</h1>' +
+      '<div class="section-head">' +
+        '<div class="hf-head-row">' +
+          "<h1>Hifdh</h1>" +
+          '<button class="hf-refresh" id="hf-refresh" title="Rafraîchir depuis le cloud">↻</button>' +
+        "</div>" +
         '<p class="greeting">' +
           '<a class="hf-who" data-stats="me">Moi</a> : ' + my.m + " mémorisés · " + my.l + " en cours" +
           ' &nbsp;·&nbsp; ' +
@@ -1097,6 +1138,20 @@
     if (hu) hu.onchange = function () { hideNotStarted = hu.checked; refreshHifdhListInPlace(); };
     const ha = document.getElementById("hf-only-amma");
     if (ha) ha.onchange = function () { onlyJuzAmma = ha.checked; refreshHifdhListInPlace(); };
+
+    // Background refresh on every Hifdh tab open. Re-renders only if something
+    // actually changed, so it's silent when there's nothing new.
+    const refreshBtn = document.getElementById("hf-refresh");
+    function runRefresh(fromButton) {
+      if (refreshBtn) refreshBtn.classList.add("spinning");
+      refreshFromCloud().then(function (changed) {
+        if (refreshBtn) refreshBtn.classList.remove("spinning");
+        if (changed.own || fromButton) return screenHifdh();
+        if (changed.friend) refreshHifdhListInPlace();
+      });
+    }
+    runRefresh(false);
+    if (refreshBtn) refreshBtn.onclick = function () { runRefresh(true); };
 
     const st = document.getElementById("hf-search-toggle");
     if (st) st.onclick = function () {
@@ -1700,6 +1755,7 @@
       const own = allRows.filter(r => r.user_id === me)[0] || null;
       const cloudData = own && own.data ? own.data : null;
       state = Object.assign({ scores: {} }, cloudData || {});
+      myLastCloudTs = (own && own.updated_at) || "";
       localSave(state);
       if (!own) { cloudSave(state); allRows.push({ user_id: me, display_name: null, data: state }); }
     } catch (e) {

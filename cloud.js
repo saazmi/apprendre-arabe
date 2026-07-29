@@ -61,25 +61,30 @@
   let pending = null;
   let inflight = false;
 
-  async function saveData(dataObj) {
+  // Callers can pass a `ts` (ISO string) so they know which server timestamp
+  // their write carries — useful for later refresh-vs-clobber decisions.
+  async function saveData(dataObj, ts) {
     if (!session) throw new Error("not signed in");
-    pending = dataObj;
-    if (inflight) return;
+    pending = { data: dataObj, ts: ts || new Date().toISOString() };
+    if (inflight) return pending.ts;
     inflight = true;
+    let lastTs = pending.ts;
     try {
       while (pending) {
         const snapshot = pending;
         pending = null;
+        lastTs = snapshot.ts;
         const r = await client.from("user_data").upsert({
           user_id: currentUserId(),
-          data: snapshot,
-          updated_at: new Date().toISOString(),
+          data: snapshot.data,
+          updated_at: snapshot.ts,
         }, { onConflict: "user_id" });
         if (r.error) throw r.error;
       }
     } finally {
       inflight = false;
     }
+    return lastTs;
   }
 
   window.Cloud = {
