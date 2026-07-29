@@ -1714,7 +1714,23 @@
   boot();
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("./sw.js").catch(function () {});
+      // updateViaCache: "none" → browser doesn't cache sw.js, so it's re-fetched
+      // on every registration → new deployments are detected reliably.
+      navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+        .then(function (reg) { try { reg.update(); } catch (_) {} })
+        .catch(function () {});
+      // When a NEW SW takes over an already-controlled page (i.e. an update),
+      // reload once so the page runs the fresh assets. Skip on first-ever install
+      // where there was no prior controller — that first controllerchange isn't
+      // an update, it's the initial handshake.
+      if (navigator.serviceWorker.controller) {
+        let reloading = false;
+        navigator.serviceWorker.addEventListener("controllerchange", function () {
+          if (reloading) return;
+          reloading = true;
+          window.location.reload();
+        });
+      }
     });
   }
 })();
