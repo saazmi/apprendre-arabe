@@ -181,60 +181,121 @@
   // =========================================================================
   //  ACCUEIL
   // =========================================================================
-  function surahSuggestion(n) {
-    const meta = HIFDH_META[n - 1];
-    const inAmma = n >= 78 && n <= 114;
-    return { kind: "surah", n: n,
-             label: "Sourate " + meta.n + " · " + meta.tr,
-             sub: (inAmma ? "Juzʾ ʿAmma · " : "") + meta.ayahs + " ayat",
-             go: function () { screenSurah(n); } };
+  // Home half-cards. Positions:
+  //   1. next Hifdh surah (always)
+  //   2. next grammar item — else Hifdh
+  //   3. next vocab item   — else Hifdh
+  //   4. next story        — else Hifdh
+  //
+  // Hifdh priority:
+  //   a. Unfinished surahs (started, not 100%) — sorted by highest completion desc
+  //   b. Next Juzʾ ʿAmma unstarted (n = 78..114)
+  //   c. Next unstarted in Quran order
+
+  function nextHifdhItem(seen) {
+    const cands = [];
+    HIFDH_META.forEach(function (meta) {
+      if (seen[meta.n]) return;
+      const st = surahStats(state, meta);
+      if ((st.m > 0 || st.l > 0) && st.m < meta.ayahs) {
+        cands.push({ meta: meta, st: st, pct: st.m / meta.ayahs });
+      }
+    });
+    cands.sort(function (a, b) { return b.pct - a.pct; });
+    if (cands.length) {
+      const c = cands[0];
+      return { kind: "surah-continue", n: c.meta.n,
+               label: "Reprendre S" + c.meta.n + " · " + c.meta.tr,
+               sub: c.st.m + "/" + c.meta.ayahs + " mém." +
+                    (c.st.l ? " · " + c.st.l + " en cours" : ""),
+               go: function () { screenSurah(c.meta.n); } };
+    }
+    for (let n = 78; n <= 114; n++) {
+      if (seen[n] || getStarts(state)[n]) continue;
+      const meta = HIFDH_META[n - 1];
+      return { kind: "surah-new", n: n,
+               label: "Commencer S" + n + " · " + meta.tr,
+               sub: "Juzʾ ʿAmma · " + meta.ayahs + " ayat",
+               go: function () { screenSurah(n); } };
+    }
+    for (let n = 1; n <= 114; n++) {
+      if (seen[n] || getStarts(state)[n]) continue;
+      const meta = HIFDH_META[n - 1];
+      return { kind: "surah-new", n: n,
+               label: "Commencer S" + n + " · " + meta.tr,
+               sub: meta.ayahs + " ayat",
+               go: function () { screenSurah(n); } };
+    }
+    return null;
   }
-  function todaySuggestions() {
-    const out = [];
-    // 1. In-progress lessons / vocab decks — top priority
-    LESSONS.forEach(function (l) {
+
+  function nextGrammarItem() {
+    for (const l of LESSONS) {
       const pos = getPos("g", l.id);
-      const total = l.cards.length;
-      if (pos > 0 && pos < total) {
-        out.push({ kind: "lesson", label: "Reprendre L" + l.n + " · " + l.title,
-                   sub: pos + "/" + total + " cartes", go: function () { teach(l); } });
+      if (pos > 0 && pos < l.cards.length) {
+        return { kind: "lesson-continue",
+                 label: "Reprendre L" + l.n + " · " + l.title,
+                 sub: pos + "/" + l.cards.length + " cartes",
+                 go: function () { teach(l); } };
       }
-    });
-    VOCAB.forEach(function (d) {
+    }
+    for (const l of LESSONS) {
+      if (getPos("g", l.id) === 0 && !best("g:" + l.id)) {
+        return { kind: "lesson-new",
+                 label: "Nouvelle L" + l.n + " · " + l.title,
+                 sub: l.cards.length + " cartes",
+                 go: function () { teach(l); } };
+      }
+    }
+    return null;
+  }
+
+  function nextVocabItem() {
+    for (const d of VOCAB) {
       const pos = getPos("v", d.id);
-      const total = d.words.length;
-      if (pos > 0 && pos < total) {
-        out.push({ kind: "vocab", label: "Reprendre " + d.title,
-                   sub: pos + "/" + total + " cartes", go: function () { browse(d); } });
+      if (pos > 0 && pos < d.words.length) {
+        return { kind: "vocab-continue",
+                 label: "Reprendre " + d.title,
+                 sub: pos + "/" + d.words.length + " cartes",
+                 go: function () { browse(d); } };
       }
-    });
-    // 2. Next new lesson / vocab / story (one of each, if room)
-    if (out.length < 4) {
-      const nextL = LESSONS.filter(function (l) { return getPos("g", l.id) === 0 && !best("g:" + l.id); })[0];
-      if (nextL) out.push({ kind: "lesson", label: "Nouvelle L" + nextL.n + " · " + nextL.title,
-                            sub: nextL.cards.length + " cartes", go: function () { teach(nextL); } });
     }
-    if (out.length < 4) {
-      const nextV = VOCAB.filter(function (d) { return getPos("v", d.id) === 0 && !best("v:" + d.id); })[0];
-      if (nextV) out.push({ kind: "vocab", label: "Vocabulaire · " + nextV.title,
-                            sub: nextV.words.length + " mots", go: function () { browse(nextV); } });
+    for (const d of VOCAB) {
+      if (getPos("v", d.id) === 0 && !best("v:" + d.id)) {
+        return { kind: "vocab-new",
+                 label: "Vocab · " + d.title,
+                 sub: d.words.length + " mots",
+                 go: function () { browse(d); } };
+      }
     }
-    if (out.length < 4 && STORIES.length) {
-      const s = STORIES[0];
-      out.push({ kind: "story", label: "Récit — " + (s.title || s.name || ""),
-                 sub: "coran & versets", go: function () { screenStories(); } });
+    return null;
+  }
+
+  function nextStoryItem() {
+    const s = STORIES[0];
+    if (!s) return null;
+    return { kind: "story",
+             label: "Récit · " + (s.title || s.name || ""),
+             sub: "coran & versets",
+             go: function () { screenStories(); } };
+  }
+
+  function todaySuggestions() {
+    const seen = {};
+    const out = [];
+    function push(item) {
+      if (!item) return false;
+      out.push(item);
+      if (item.n) seen[item.n] = true;
+      return true;
     }
-    // 3. Pad remaining slots with hifdh surahs (Juzʾ ʿAmma first, then Quran order).
-    //    This is where Hifdh takes over: any leftover half-card goes to a surah.
-    while (out.length < 4) {
-      const already = {};
-      out.forEach(function (i) { if (i.kind === "surah") already[i.n] = true; });
-      let nextN = null;
-      for (let n = 78; n <= 114; n++) if (!getStarts(state)[n] && !already[n]) { nextN = n; break; }
-      if (!nextN) for (let n = 1; n <= 114; n++) if (!getStarts(state)[n] && !already[n]) { nextN = n; break; }
-      if (!nextN) break;
-      out.push(surahSuggestion(nextN));
-    }
+    function pushHifdh() { push(nextHifdhItem(seen)); }
+
+    pushHifdh();                                  // 1: Hifdh
+    if (!push(nextGrammarItem())) pushHifdh();    // 2: grammar → else Hifdh
+    if (!push(nextVocabItem()))   pushHifdh();    // 3: vocab   → else Hifdh
+    if (!push(nextStoryItem()))   pushHifdh();    // 4: story   → else Hifdh
+
     return out.slice(0, 4);
   }
 
@@ -246,7 +307,11 @@
     const vDone = VOCAB.filter(d => best("v:" + d.id)).length;
     const todo = todaySuggestions();
     const todoHTML = todo.map(function (t, idx) {
-      const ic = t.kind === "lesson" ? "ن" : t.kind === "vocab" ? "ك" : t.kind === "story" ? "ق" : "ح";
+      const ic =
+        t.kind === "story"           ? "ق" :
+        t.kind.indexOf("lesson") === 0 ? "ن" :
+        t.kind.indexOf("vocab")  === 0 ? "ك" :
+        /* surah-* */                  "ح";
       return '<button class="home-card home-half" data-todo="' + idx + '">' +
                '<span class="home-half-ic" dir="rtl">' + ic + "</span>" +
                '<span class="home-half-txt">' +
