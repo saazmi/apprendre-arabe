@@ -102,6 +102,34 @@
     cloudSave(state);
   }
 
+  // ---- mots de vocabulaire « acquis » ------------------------------------
+  //  state.vocab.acquired = { deckId: { wordAr: true } }
+  function acqMap(deckId) {
+    if (!state.vocab || !state.vocab.acquired) return {};
+    return state.vocab.acquired[deckId] || {};
+  }
+  function isAcquired(deckId, wordAr) { return !!acqMap(deckId)[wordAr]; }
+  function acquiredCount(deckId) { return Object.keys(acqMap(deckId)).length; }
+  function toggleAcquired(deckId, wordAr) {
+    state.vocab = state.vocab || {};
+    state.vocab.acquired = state.vocab.acquired || {};
+    state.vocab.acquired[deckId] = state.vocab.acquired[deckId] || {};
+    const m = state.vocab.acquired[deckId];
+    if (m[wordAr]) delete m[wordAr]; else m[wordAr] = true;
+    cloudSave(state);
+    return !!m[wordAr];
+  }
+  function totalVocabAcquired() {
+    let n = 0;
+    if (state.vocab && state.vocab.acquired) {
+      for (const k in state.vocab.acquired) n += Object.keys(state.vocab.acquired[k]).length;
+    }
+    return n;
+  }
+  function totalVocabWords() {
+    let n = 0; VOCAB.forEach(function (d) { n += d.words.length; }); return n;
+  }
+
   function h(html) { app.innerHTML = html; window.scrollTo(0, 0); }
 
   // =========================================================================
@@ -340,7 +368,7 @@
           '<button class="home-card tile" data-go="vocab">' +
             '<div class="tile-ic" dir="rtl">كَلِمَات</div>' +
             '<div class="tile-t">Vocabulaire</div>' +
-            '<div class="tile-s">' + VOCAB.length + " jeux de mots · cartes & quiz</div>" +
+            '<div class="tile-s">' + totalVocabAcquired() + " / " + totalVocabWords() + " mots acquis</div>" +
           "</button>" +
           // Row 2: Récits + 4 Hifdh-prioritized todo halves
           '<button class="home-card tile" data-go="stories">' +
@@ -477,22 +505,30 @@
       const b = best("v:" + d.id);
       const score = b ? '<span class="rq-score">✓ ' + b.best + "/" + b.total + "</span>" : "";
       const total = d.words.length;
-      const pos = Math.min(getPos("v", d.id), total);
-      const cardsChip = pos > 0
-        ? ' <span class="cards-chip' + (pos >= total ? " done" : "") + '">' + Math.min(pos, total) + "/" + total + " cartes</span>"
-        : "";
+      const acq = acquiredCount(d.id);
+      const pct = total ? Math.round((acq / total) * 100) : 0;
+      const done = acq >= total && total > 0;
       rows += '<div class="list-row">' +
                 '<button class="row-main" data-deck="' + d.id + '">' +
                   '<span class="list-ic" dir="rtl">كَلِمَات</span>' +
-                  '<span class="list-meta"><span class="list-title">' + d.title + "</span>" +
-                    '<span class="list-sub">' + d.subtitle + " · " + total + " mots" + cardsChip + "</span></span>" +
+                  '<span class="list-meta">' +
+                    '<span class="list-title">' + d.title + (done ? " ✓" : "") + "</span>" +
+                    '<span class="list-sub">' + d.subtitle + " · " + total + " mots</span>" +
+                    '<span class="acq-line">' +
+                      '<span class="acq-bar"><span class="acq-fill" style="width:' + pct + '%"></span></span>' +
+                      '<span class="acq-count">' + acq + "/" + total + " acquis</span>" +
+                    "</span>" +
+                  "</span>" +
                 "</button>" +
                 '<button class="row-quiz" data-quiz="' + d.id + '"><span class="rq-label">Quiz</span>' + score + "</button>" +
               "</div>";
     });
+    const totalAcq = totalVocabAcquired();
+    const totalAll = totalVocabWords();
     shell("vocab",
       '<div class="section-head"><h1>Vocabulaire</h1>' +
-        '<p class="greeting">Touche un jeu pour parcourir les cartes · le bouton <b>Quiz</b> pour te tester.</p></div>' +
+        '<p class="greeting">Touche un jeu pour parcourir · marque un mot comme <b>acquis</b> quand tu le connais. Bouton <b>Quiz</b> pour te tester.</p></div>' +
+      '<div class="vocab-total">Progression totale : <b>' + totalAcq + " / " + totalAll + "</b> mots acquis</div>" +
       '<div class="list">' + rows + "</div>"
     );
     Array.prototype.forEach.call(document.querySelectorAll(".row-main"), function (b) {
@@ -523,6 +559,11 @@
     const pct = Math.round((i / total) * 100);
     const last = i === total - 1;
 
+    const acquired = isAcquired(deck.id, w.ar);
+    const countChip = (typeof w.count === "number")
+      ? '<div class="vcard-count">' + w.count + "&nbsp;× dans le Coran</div>"
+      : "";
+
     focus(
       '<div class="study">' +
         '<div class="phase-label">' + deck.title + " · " + (i + 1) + "/" + total + "</div>" +
@@ -533,7 +574,15 @@
           '<div class="vcard-back" id="cardback" hidden>' +
             '<div class="vcard-tr">' + w.tr + "</div>" +
             '<div class="vcard-fr">' + w.fr + "</div>" +
+            countChip +
           "</div>" +
+        "</div>" +
+        '<div class="acq-row">' +
+          '<button class="acq-toggle' + (acquired ? " on" : "") + '" id="acq" ' +
+            'aria-pressed="' + (acquired ? "true" : "false") + '">' +
+            '<span class="acq-check">✓</span> ' +
+            '<span class="acq-label">' + (acquired ? "Acquis" : "Marquer comme acquis") + "</span>" +
+          "</button>" +
         "</div>" +
         '<div class="nav-row">' +
           (i > 0 ? '<button class="btn btn-ghost" id="prev">‹ Précédent</button>' : '<span class="spacer"></span>') +
@@ -554,6 +603,14 @@
     document.getElementById("next").onclick = function () {
       if (last) { setPos("v", deck.id, total); screenVocab(); }
       else browse(deck, i + 1);
+    };
+    // toggle « acquis » — met à jour la pastille sans quitter la carte
+    const acqBtn = document.getElementById("acq");
+    acqBtn.onclick = function () {
+      const on = toggleAcquired(deck.id, w.ar);
+      acqBtn.classList.toggle("on", on);
+      acqBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      acqBtn.querySelector(".acq-label").textContent = on ? "Acquis" : "Marquer comme acquis";
     };
   }
 

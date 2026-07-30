@@ -227,6 +227,55 @@ bdi { font-family: var(--arabic); font-style: normal; }
   border-top: 1px solid rgba(157, 177, 216, 0.2); animation: fade 0.3s ease both; }
 .vcard-tr { font-size: clamp(1.1rem, 3.2vw, 1.5rem); color: var(--ink-soft); font-style: italic; }
 .vcard-fr { font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--emerald); margin-top: 0.4rem; font-weight: 650; }
+.vcard-count {
+  margin-top: 0.9rem; font-size: 0.85rem; color: var(--gold);
+  letter-spacing: 0.02em; font-weight: 600;
+}
+
+/* ---- « Acquis » : coche par mot + barre de progression par jeu ---------- */
+.acq-row { display: flex; justify-content: center; margin-top: 1.3rem; }
+.acq-toggle {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  padding: 0.6rem 1.15rem; border-radius: 999px;
+  font-family: var(--font); font-size: 1rem; font-weight: 650; cursor: pointer;
+  background: rgba(157, 177, 216, 0.1);
+  border: 1.5px solid rgba(157, 177, 216, 0.25);
+  color: var(--ink-soft);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+.acq-toggle:active { transform: scale(0.97); }
+.acq-toggle .acq-check {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  background: rgba(157, 177, 216, 0.16); color: transparent;
+  font-size: 0.9rem; font-weight: 800;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.acq-toggle.on {
+  background: rgba(231, 201, 118, 0.16);
+  border-color: rgba(231, 201, 118, 0.55);
+  color: var(--gold);
+}
+.acq-toggle.on .acq-check { background: var(--gold); color: var(--bg-2); }
+
+.acq-line { display: flex; align-items: center; gap: 0.65rem; margin-top: 0.55rem; }
+.acq-bar {
+  flex: 1; height: 6px; border-radius: 999px;
+  background: rgba(157, 177, 216, 0.14); overflow: hidden;
+}
+.acq-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--emerald), var(--gold));
+  transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.acq-count {
+  flex: 0 0 auto; font-size: 0.82rem; color: var(--ink-soft); font-variant-numeric: tabular-nums;
+}
+.vocab-total {
+  text-align: center; color: var(--ink-soft); font-size: 0.98rem;
+  margin: -0.4rem 0 1.1rem;
+}
+.vocab-total b { color: var(--gold); font-variant-numeric: tabular-nums; }
 
 /* ---- Histoire des prophètes --------------------------------------------- */
 .story-card { display: block; text-align: left; padding: clamp(1.4rem, 4vw, 2.2rem); }
