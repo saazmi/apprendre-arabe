@@ -568,10 +568,9 @@
       '<div class="study">' +
         '<div class="phase-label">' + deck.title + " · " + (i + 1) + "/" + total + "</div>" +
         '<div class="progress"><span style="width:' + pct + '%"></span></div>' +
-        '<div class="card vcard" id="card">' +
+        '<div class="card vcard">' +
           '<div class="vcard-ar" dir="rtl">' + w.ar + "</div>" +
-          '<div class="reveal-hint" id="hint">touche pour voir le sens</div>' +
-          '<div class="vcard-back" id="cardback" hidden>' +
+          '<div class="vcard-back">' +
             '<div class="vcard-tr">' + w.tr + "</div>" +
             '<div class="vcard-fr">' + w.fr + "</div>" +
             countChip +
@@ -592,13 +591,6 @@
       "Vocabulaire", screenVocab
     );
 
-    let revealed = false;
-    function reveal() {
-      if (revealed) return; revealed = true;
-      document.getElementById("cardback").hidden = false;
-      document.getElementById("hint").style.visibility = "hidden";
-    }
-    document.getElementById("card").onclick = reveal;
     if (i > 0) document.getElementById("prev").onclick = function () { browse(deck, i - 1); };
     document.getElementById("next").onclick = function () {
       if (last) { setPos("v", deck.id, total); screenVocab(); }
