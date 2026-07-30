@@ -252,11 +252,11 @@ bdi { font-family: var(--arabic); font-style: normal; }
   transition: background 0.15s ease, color 0.15s ease;
 }
 .acq-toggle.on {
-  background: rgba(231, 201, 118, 0.16);
-  border-color: rgba(231, 201, 118, 0.55);
-  color: var(--gold);
+  background: rgba(86, 214, 176, 0.16);
+  border-color: rgba(86, 214, 176, 0.55);
+  color: var(--good);
 }
-.acq-toggle.on .acq-check { background: var(--gold); color: var(--bg-2); }
+.acq-toggle.on .acq-check { background: var(--good); color: var(--bg-2); }
 
 .acq-line { display: flex; align-items: center; gap: 0.65rem; margin-top: 0.55rem; }
 .acq-bar {

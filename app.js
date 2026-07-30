@@ -580,7 +580,7 @@
           '<button class="acq-toggle' + (acquired ? " on" : "") + '" id="acq" ' +
             'aria-pressed="' + (acquired ? "true" : "false") + '">' +
             '<span class="acq-check">✓</span> ' +
-            '<span class="acq-label">' + (acquired ? "Acquis" : "Marquer comme acquis") + "</span>" +
+            '<span class="acq-label">Acquis</span>' +
           "</button>" +
         "</div>" +
         '<div class="nav-row">' +
@@ -596,13 +596,12 @@
       if (last) { setPos("v", deck.id, total); screenVocab(); }
       else browse(deck, i + 1);
     };
-    // toggle « acquis » — met à jour la pastille sans quitter la carte
+    // toggle « acquis » — la pastille passe du gris au vert
     const acqBtn = document.getElementById("acq");
     acqBtn.onclick = function () {
       const on = toggleAcquired(deck.id, w.ar);
       acqBtn.classList.toggle("on", on);
       acqBtn.setAttribute("aria-pressed", on ? "true" : "false");
-      acqBtn.querySelector(".acq-label").textContent = on ? "Acquis" : "Marquer comme acquis";
     };
   }
 
