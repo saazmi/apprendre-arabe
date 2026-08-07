@@ -2,7 +2,7 @@
 
 Cartes mémoire pour apprendre l'arabe (fusha), une carte à la fois.
 Conçu pour des séances courtes (10–15 min), calmes et sans surcharge —
-pensé autour d'un profil TDAH / TDA.
+pensé autour d'un profil TDAH.
 
 **En ligne :** https://saazmi.github.io/apprendre-arabe/
 
@@ -13,18 +13,6 @@ pensé autour d'un profil TDAH / TDA.
 - **Séances finies** : max 10 cartes, dont 4 nouvelles au plus. Une fin visible.
 - **Tout est local** : la progression est sauvée dans le navigateur
   (`localStorage`). Aucun serveur, aucun compte. Fonctionne hors-ligne (PWA).
-
-## Installer sur l'iPad (recommandé)
-
-1. Ouvrir le lien dans **Safari**.
-2. Bouton **Partager** → **Sur l'écran d'accueil**.
-3. Lancer depuis l'icône : plein écran, sans barre, et la progression est
-   protégée (Safari n'efface pas les données d'une app installée).
-
-## Ajouter du contenu
-
-Tout le contenu est dans [`decks.js`](decks.js). Pour ajouter une leçon,
-copier un bloc `{ ... }` et changer les valeurs. Aucune autre étape.
 
 ## Fichiers
 
