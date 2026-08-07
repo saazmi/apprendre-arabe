@@ -67,31 +67,29 @@ window.VOCAB = [
   },
 
   /* ----------------------------------------------------------------------
-     Inspiré de « 80% des mots du Qour'ân » (Al-Lawh · CC BY-NC-SA).
-     Chaque mot : ar, tr (translit.), fr (sens), count (nb d'occurrences
-     dans le Coran, ± 3 marge d'erreur, source Al-Lawh / Corpus de Leeds).
+     D'après « 80% des mots du Qour'ân » (Al-Lawh · CC BY-NC-SA).
+     Chaque mot : ar, tr, fr, count (nb d'occurrences dans le Coran,
+     ± 3 marge d'erreur, source Al-Lawh / Corpus de Leeds).
+     Sélection et itérations fidèles aux tableaux du livre.
      ---------------------------------------------------------------------- */
   {
-    id: "noms-divins",
-    title: "Noms divins",
-    subtitle: "Les plus beaux noms d'Allah — أَسْمَاء اللَّه الحُسْنَى",
-    source: "Inspiré de « 80% des mots du Qour'ân » (Al-Lawh)",
+    id: "noms-divins-a",
+    title: "Quelques noms d'Allah",
+    subtitle: "Noms divins & qualificatifs — Tableau A",
+    source: "D'après Al-Lawh — « Noms divins et autres qualificatifs · A »",
     words: [
-      { ar: "اللَّه",       tr: "Allāh",       fr: "Allah",                       count: 2699 },
-      { ar: "رَبّ",         tr: "rabb",        fr: "Seigneur",                    count: 970 },
-      { ar: "الرَّحْمَٰن",  tr: "Ar-Raḥmān",   fr: "le Tout-Miséricordieux",       count: 57 },
-      { ar: "الرَّحِيم",    tr: "Ar-Raḥīm",    fr: "le Très-Miséricordieux",       count: 114 },
-      { ar: "المَلِك",      tr: "Al-Malik",    fr: "le Roi",                       count: 5 },
-      { ar: "العَلِيم",     tr: "Al-ʿAlīm",    fr: "l'Omniscient",                 count: 157 },
-      { ar: "الحَكِيم",     tr: "Al-Ḥakīm",    fr: "le Sage",                      count: 97 },
-      { ar: "العَزِيز",     tr: "Al-ʿAzīz",    fr: "le Puissant",                  count: 90 },
-      { ar: "الغَفُور",     tr: "Al-Ghafūr",   fr: "le Grand-Pardonneur",          count: 91 },
-      { ar: "السَّمِيع",    tr: "As-Samīʿ",    fr: "Celui qui entend tout",        count: 47 },
-      { ar: "البَصِير",     tr: "Al-Baṣīr",    fr: "Celui qui voit tout",          count: 42 },
-      { ar: "الخَبِير",     tr: "Al-Khabīr",   fr: "le Parfaitement Informé",      count: 44 },
-      { ar: "القَدِير",     tr: "Al-Qadīr",    fr: "le Tout-Puissant",             count: 45 },
-      { ar: "الحَمِيد",     tr: "Al-Ḥamīd",    fr: "le Digne de louange",          count: 17 },
-      { ar: "الحَقّ",       tr: "Al-Ḥaqq",     fr: "la Vérité",                    count: 227 },
+      { ar: "الخَبِير",    tr: "Al-Khabīr",  fr: "le Parfaitement Informé",              count: 45  },
+      { ar: "رَبّ",        tr: "Rabb",       fr: "Seigneur, maître, éducateur",           count: 971 },
+      { ar: "الرَّحْمَٰن", tr: "Ar-Raḥmān",  fr: "le Miséricordieux, le Clément",         count: 57  },
+      { ar: "السَّلَام",   tr: "As-Salām",   fr: "le Pacifique, la Paix",                 count: 42  },
+      { ar: "السَّمِيع",   tr: "As-Samīʿ",   fr: "Celui qui entend chaque chose",         count: 47  },
+      { ar: "شَكُور",      tr: "Shakūr",     fr: "reconnaissant, plein de gratitude",     count: 10  },
+      { ar: "العَزِيز",    tr: "Al-ʿAzīz",   fr: "le Tout-Puissant",                      count: 101 },
+      { ar: "الغَفُور",    tr: "Al-Ghafūr",  fr: "le Pardonneur, l'Expiateur de fautes",  count: 91  },
+      { ar: "القَدِير",    tr: "Al-Qadīr",   fr: "l'Omnipotent, Celui qui peut tout",     count: 45  },
+      { ar: "نَذِير",      tr: "Nadhīr",     fr: "avertisseur, avertissement",            count: 58  },
+      { ar: "النَّصِير",   tr: "An-Naṣīr",   fr: "le Secoureur, le Protecteur",           count: 24  },
+      { ar: "الوَكِيل",    tr: "Al-Wakīl",   fr: "le Garant suprême",                     count: 24  },
     ],
   },
 ];
